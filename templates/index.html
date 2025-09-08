@@ -82,8 +82,9 @@
                                     <small class="text-muted">Trainer Name</small>
                                 </div>
                                 <div class="col-md-2">
-                                    <h5><i class="fas fa-trophy"></i> <span id="total-wins">0</span></h5>
-                                    <small class="text-muted">Total Wins</small>
+                                    <h5><i class="fas fa-trophy text-success"></i> <span id="total-wins">0</span></h5>
+                                    <h6><i class="fas fa-times text-danger"></i> <span id="total-losses">0</span></h6>
+                                    <small class="text-muted">Wins / Losses</small>
                                 </div>
                                 <div class="col-md-2">
                                     <h5><i class="fas fa-star"></i> <span id="gym-badges">0</span></h5>
@@ -94,10 +95,10 @@
                                     <small class="text-muted">Pokemon Collection</small>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="current-pokemon-select" class="form-label">Active Pokemon:</label>
-                                    <select id="current-pokemon-select" class="form-select form-select-sm">
-                                        <option value="">Select Pokemon...</option>
-                                    </select>
+                                    <label for="battle-team-select" class="form-label">Battle Team (Max 3):</label>
+                                    <div id="battle-team-selection">
+                                        <!-- Team selection checkboxes will be added here -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -296,6 +297,70 @@
                         <div id="victory-content"></div>
                         <button type="button" class="btn btn-primary mt-3" id="continue-btn">
                             Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pokemon Unlock Modal -->
+        <div class="modal fade" id="pokemon-unlock-modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">
+                            <i class="fas fa-gift"></i> Unlock Your New Pokemon!
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="card unlock-card">
+                            <div class="card-body">
+                                <h4 class="text-primary mb-3">Congratulations!</h4>
+                                <p id="unlock-message">You've earned enough wins to unlock a new Pokemon!</p>
+                                <div class="unlock-pokemon-display" id="unlock-pokemon-display">
+                                    <!-- New Pokemon will be shown here -->
+                                </div>
+                                <button class="btn btn-success btn-lg mt-3" id="claim-pokemon-btn">
+                                    <i class="fas fa-plus"></i> Add to Collection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opponent Preview Modal -->
+        <div class="modal fade" id="opponent-preview-modal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-eye"></i> Battle Preview
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-center">Your Team</h6>
+                                <div id="player-team-preview" class="team-preview">
+                                    <!-- Player team will be shown here -->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-center">Opponent: <span id="preview-opponent-name"></span></h6>
+                                <div id="opponent-team-preview" class="team-preview">
+                                    <!-- Opponent team will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="skip-opponent-btn">
+                            <i class="fas fa-skip-forward"></i> Skip This Opponent
+                        </button>
+                        <button type="button" class="btn btn-primary" id="start-battle-btn">
+                            <i class="fas fist-raised"></i> Start Battle!
                         </button>
                     </div>
                 </div>

@@ -902,16 +902,27 @@ class PokemonGymBattleGame {
         const unlockDisplay = document.getElementById('unlock-pokemon-display');
         const unlockMessage = document.getElementById('unlock-message');
         
-        unlockMessage.textContent = `You've unlocked a Stage ${this.pendingPokemonUnlock.stage} Pokemon!`;
+        const isStage1 = this.pendingPokemonUnlock.stage === 1;
+        const stageName = isStage1 ? 'Basic' : `Stage ${this.pendingPokemonUnlock.stage}`;
+        const currentCollectionCount = this.pokemonCollection.length + 1; // +1 for the new one
+        
+        unlockMessage.textContent = `Unlock your ${isStage1 ? this.getOrdinalNumber(currentCollectionCount) : 'new'} Pokemon!`;
         
         unlockDisplay.innerHTML = `
             <img src="${this.pendingPokemonUnlock.image}" alt="${this.pendingPokemonUnlock.name}">
             <div class="pokemon-name">${this.capitalize(this.pendingPokemonUnlock.name)}</div>
-            <span class="stage-indicator stage-${this.pendingPokemonUnlock.stage}">Stage ${this.pendingPokemonUnlock.stage}</span>
+            <span class="stage-indicator stage-${this.pendingPokemonUnlock.stage}">${stageName} Stage</span>
+            <p class="mt-2 text-muted">A new ${stageName.toLowerCase()} Pokemon joins your team!</p>
         `;
         
         const modal = new bootstrap.Modal(document.getElementById('pokemon-unlock-modal'));
         modal.show();
+    }
+    
+    getOrdinalNumber(num) {
+        const suffixes = ['th', 'st', 'nd', 'rd'];
+        const v = num % 100;
+        return num + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
     }
     
     claimNewPokemon() {

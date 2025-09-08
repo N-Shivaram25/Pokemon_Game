@@ -262,6 +262,10 @@ class PokemonGymBattleGame {
         document.getElementById('trainer-name-display').textContent = this.trainerName;
         document.getElementById('total-wins').textContent = this.totalWins;
         document.getElementById('total-losses').textContent = this.totalLosses;
+        document.getElementById('practice-wins').textContent = this.practiceWins;
+        document.getElementById('practice-losses').textContent = this.practiceLosses;
+        document.getElementById('gym-wins').textContent = this.gymWins;
+        document.getElementById('gym-losses').textContent = this.gymLosses;
         document.getElementById('gym-badges').textContent = this.gymBadges;
         document.getElementById('pokemon-collection-count').textContent = this.pokemonCollection.length;
         

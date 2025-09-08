@@ -628,7 +628,7 @@ class PokemonGymBattleGame {
         document.getElementById('battle-log').innerHTML = '';
         const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
         const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
-        this.addLogEntry(`${this.battleTeam.length}v${this.currentBattle.opponentTeam.length} Battle begins! ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
+        this.addLogEntry(`${this.currentBattle.playerTeam.length}v${this.currentBattle.opponentTeam.length} Battle begins! ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
         
         // Enable attack button
         document.getElementById('attack-btn').disabled = false;
@@ -715,6 +715,7 @@ class PokemonGymBattleGame {
     
     playerAttack() {
         if (this.gameState !== 'battle' || this.currentBattle.currentTurn !== 'player') {
+            console.log('Player attack blocked - game state:', this.gameState, 'turn:', this.currentBattle?.currentTurn);
             return;
         }
         
@@ -722,6 +723,15 @@ class PokemonGymBattleGame {
         
         const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
         const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
+        
+        console.log('Player attack:', {
+            playerPokemon: playerPokemon.name,
+            playerHP: playerPokemon.currentHP,
+            opponentPokemon: opponentPokemon.name,
+            opponentHP: opponentPokemon.currentHP,
+            playerActiveIndex: this.currentBattle.playerActiveIndex,
+            opponentActiveIndex: this.currentBattle.opponentActiveIndex
+        });
         
         // Add attack animation
         document.getElementById('player-image').classList.add('attacking');

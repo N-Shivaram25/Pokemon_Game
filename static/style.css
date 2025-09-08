@@ -300,3 +300,121 @@ body {
 .hp-bar .progress-bar.hp-low {
     background-color: var(--pokemon-red) !important;
 }
+
+/* Trainer Setup Styles */
+.trainer-input {
+    border-radius: 10px;
+    border: 2px solid var(--pokemon-blue);
+    padding: 12px;
+    font-size: 16px;
+}
+
+.trainer-input:focus {
+    border-color: var(--pokemon-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+}
+
+.opponent-select {
+    border-radius: 10px;
+    border: 2px solid var(--pokemon-red);
+    padding: 12px;
+    font-size: 16px;
+}
+
+.opponent-select:focus {
+    border-color: var(--pokemon-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+}
+
+/* Team Selection Styles */
+.team-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.pokemon-team-select {
+    border-radius: 8px;
+    border: 2px solid var(--pokemon-purple);
+    padding: 8px;
+    font-size: 14px;
+}
+
+.pokemon-team-select:focus {
+    border-color: var(--pokemon-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+}
+
+.team-display {
+    min-height: 200px;
+    background: rgba(243, 244, 246, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.team-pokemon-item {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 120px;
+}
+
+.team-pokemon-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.team-pokemon-item .pokemon-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--pokemon-purple);
+    text-transform: capitalize;
+    margin-top: 5px;
+}
+
+/* Tournament Progress Styles */
+.tournament-progress-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.round-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.round-indicator {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+}
+
+.round-indicator.win {
+    background-color: var(--pokemon-green);
+}
+
+.round-indicator.loss {
+    background-color: var(--pokemon-red);
+}
+
+.round-indicator.pending {
+    background-color: #d1d5db;
+    color: #6b7280;
+}

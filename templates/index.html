@@ -19,23 +19,108 @@
             </h1>
         </header>
 
-        <!-- Game Setup Section -->
-        <div id="setup-section" class="row justify-content-center mb-4">
-            <div class="col-md-6">
+        <!-- Trainer Setup Section -->
+        <div id="trainer-setup-section" class="row justify-content-center mb-4">
+            <div class="col-md-8">
                 <div class="card setup-card">
-                    <div class="card-body text-center">
-                        <h3 class="card-title mb-4">Choose Your Pokemon!</h3>
-                        <div class="input-group mb-3">
-                            <select id="pokemon-select" class="form-select pokemon-select">
-                                <option value="">Choose your Pokemon...</option>
-                            </select>
-                            <button id="start-battle-btn" class="btn btn-primary battle-btn">
-                                <i class="fas fa-play"></i> Start Battle!
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Setup Your Trainer Profile</h3>
+                        
+                        <!-- Trainer Name Input -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="trainer-name" class="form-label">Your Trainer Name:</label>
+                                <input type="text" id="trainer-name" class="form-control trainer-input" 
+                                       placeholder="Enter your name" maxlength="20">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="opponent-select" class="form-label">Choose Opponent:</label>
+                                <select id="opponent-select" class="form-select opponent-select">
+                                    <option value="">Select an opponent...</option>
+                                    <option value="ash">Ash Ketchum</option>
+                                    <option value="gary">Gary Oak</option>
+                                    <option value="misty">Misty</option>
+                                    <option value="brock">Brock</option>
+                                    <option value="lance">Lance</option>
+                                    <option value="cynthia">Cynthia</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="continue-to-team-btn" class="btn btn-success btn-lg" disabled>
+                                <i class="fas fa-arrow-right"></i> Continue to Team Selection
                             </button>
                         </div>
-                        <small class="text-muted">Select your Pokemon from the list to begin your battle adventure!</small>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Team Selection Section -->
+        <div id="team-selection-section" class="d-none">
+            <div class="row mb-4">
+                <!-- Player Team Selection -->
+                <div class="col-md-6">
+                    <div class="card team-card">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4><i class="fas fa-user"></i> <span id="player-trainer-name">Your</span> Team</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-center mb-3">Choose 4 Pokemon for your team:</p>
+                            
+                            <!-- Pokemon Selection Dropdowns -->
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Pokemon 1:</label>
+                                    <select class="form-select pokemon-team-select" data-slot="0">
+                                        <option value="">Choose Pokemon...</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Pokemon 2:</label>
+                                    <select class="form-select pokemon-team-select" data-slot="1">
+                                        <option value="">Choose Pokemon...</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Pokemon 3:</label>
+                                    <select class="form-select pokemon-team-select" data-slot="2">
+                                        <option value="">Choose Pokemon...</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Pokemon 4:</label>
+                                    <select class="form-select pokemon-team-select" data-slot="3">
+                                        <option value="">Choose Pokemon...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Selected Team Display -->
+                            <div id="player-team-display" class="team-display mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Opponent Team Display -->
+                <div class="col-md-6">
+                    <div class="card team-card">
+                        <div class="card-header bg-danger text-white text-center">
+                            <h4><i class="fas fa-robot"></i> <span id="opponent-trainer-name">Opponent</span> Team</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-center mb-3">Opponent's Pokemon team:</p>
+                            <div id="opponent-team-display" class="team-display"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mb-4">
+                <button id="start-tournament-btn" class="btn btn-warning btn-lg" disabled>
+                    <i class="fas fa-trophy"></i> Start Tournament Battle!
+                </button>
             </div>
         </div>
 
@@ -49,13 +134,40 @@
 
         <!-- Battle Arena -->
         <div id="battle-arena" class="d-none">
+            <!-- Tournament Progress -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card tournament-progress-card">
+                        <div class="card-header bg-warning text-dark text-center">
+                            <h4><i class="fas fa-trophy"></i> Tournament Progress</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h5>Round: <span id="current-round">1</span>/4</h5>
+                                </div>
+                                <div class="col-md-3">
+                                    <h5><span id="player-score-name">You</span>: <span id="player-score">0</span></h5>
+                                </div>
+                                <div class="col-md-3">
+                                    <h5><span id="opponent-score-name">Opponent</span>: <span id="opponent-score">0</span></h5>
+                                </div>
+                                <div class="col-md-3">
+                                    <div id="round-results" class="round-indicators"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Pokemon Display -->
             <div class="row mb-4">
                 <!-- Player Pokemon -->
                 <div class="col-md-6">
                     <div class="card pokemon-card player-card">
                         <div class="card-header bg-primary text-white text-center">
-                            <h4><i class="fas fa-user"></i> Your Pokemon</h4>
+                            <h4><i class="fas fa-user"></i> <span id="battle-player-name">Your</span> Pokemon</h4>
                         </div>
                         <div class="card-body text-center">
                             <div id="player-pokemon">
@@ -84,7 +196,7 @@
                 <div class="col-md-6">
                     <div class="card pokemon-card computer-card">
                         <div class="card-header bg-danger text-white text-center">
-                            <h4><i class="fas fa-robot"></i> Computer Pokemon</h4>
+                            <h4><i class="fas fa-robot"></i> <span id="battle-opponent-name">Opponent</span> Pokemon</h4>
                         </div>
                         <div class="card-body text-center">
                             <div id="computer-pokemon">

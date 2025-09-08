@@ -832,10 +832,23 @@ class PokemonGymBattleGame {
         const winsAfterStageStart = Math.max(0, this.totalWins - currentStageInfo.winsRequired);
         const shouldHavePokemon = Math.floor(winsAfterStageStart / currentStageInfo.winsPerUnlock);
         
-        // Count Pokemon from current stage
+        // Count Pokemon from current stage (excluding starter)
         const currentStageCount = this.pokemonCollection.filter(p => p.stage === this.currentStage).length;
         
-        if (shouldHavePokemon > currentStageCount) {
+        // For stage 1, we need to account for the starter Pokemon (starts with 1 Pokemon)
+        const expectedPokemon = this.currentStage === 1 ? shouldHavePokemon + 1 : shouldHavePokemon;
+        
+        console.log('Pokemon unlock check:', {
+            totalWins: this.totalWins,
+            currentStage: this.currentStage,
+            winsAfterStageStart: winsAfterStageStart,
+            winsPerUnlock: currentStageInfo.winsPerUnlock,
+            shouldHavePokemon: shouldHavePokemon,
+            expectedPokemon: expectedPokemon,
+            currentStageCount: currentStageCount
+        });
+        
+        if (expectedPokemon > currentStageCount) {
             // Generate new Pokemon from current stage
             const availablePokemon = this.pokemonByStage[this.currentStage].filter(name => 
                 !this.pokemonCollection.some(p => p.originalName === name)
@@ -851,6 +864,8 @@ class PokemonGymBattleGame {
                     wins: 0,
                     originalName: randomPokemon
                 };
+                
+                console.log('Pokemon unlock triggered:', this.pendingPokemonUnlock);
                 
                 // Show unlock modal after victory modal
                 setTimeout(() => {

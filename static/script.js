@@ -692,16 +692,22 @@ class PokemonGymBattleGame {
         const isTeamContainer = dropContainer.id === 'battle-team-selection' || dropContainer.id === 'preview-team-selection';
         const isAvailableContainer = dropContainer.id === 'available-pokemon-list';
         
+        // Clear any existing error messages
+        this.hideError();
+        
         if (source === 'team' && isAvailableContainer) {
             // Remove from team
             this.battleTeam = this.battleTeam.filter(p => p.name !== pokemon.name);
         } else if (source === 'available' && isTeamContainer) {
-            // Add to team if space available
+            // Add to team - if team is full, replace the first Pokemon
             if (this.battleTeam.length < 3) {
                 this.battleTeam.push(pokemon);
             } else {
-                alert('Maximum team size is 3 Pokemon!');
-                return;
+                // Team is full, swap with the first Pokemon
+                const removedPokemon = this.battleTeam[0]; // Remove first Pokemon
+                this.battleTeam[0] = pokemon; // Replace with new Pokemon
+                // The removed Pokemon will automatically appear in available list during refresh
+                console.log(`Swapped ${removedPokemon.name} with ${pokemon.name}`);
             }
         } else if (source === 'team' && isTeamContainer) {
             // Reorder within team

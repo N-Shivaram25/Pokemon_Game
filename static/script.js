@@ -770,11 +770,13 @@ class PokemonGymBattleGame {
         // Display active Pokemon
         this.updateBattleDisplay();
         
-        // Clear battle log and defeated Pokemon area
+        // Clear battle log and both defeated Pokemon areas
         document.getElementById('battle-log').innerHTML = '';
         
-        const defeatedArea = document.getElementById('defeated-pokemon-area');
-        defeatedArea.innerHTML = '<p class="text-muted text-center mb-0" id="no-defeated-text">No Pokemon defeated yet</p>';
+        const playerDefeatedArea = document.getElementById('player-defeated-area');
+        const opponentDefeatedArea = document.getElementById('opponent-defeated-area');
+        playerDefeatedArea.innerHTML = '<p class="text-muted text-center mb-0 small" id="no-player-defeated-text">None defeated</p>';
+        opponentDefeatedArea.innerHTML = '<p class="text-muted text-center mb-0 small" id="no-opponent-defeated-text">None defeated</p>';
         
         const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
         const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
@@ -895,8 +897,11 @@ class PokemonGymBattleGame {
     }
     
     addDefeatedPokemon(pokemon, side) {
-        const defeatedArea = document.getElementById('defeated-pokemon-area');
-        const noDefeatedText = document.getElementById('no-defeated-text');
+        const defeatedAreaId = side === 'player' ? 'player-defeated-area' : 'opponent-defeated-area';
+        const noDefeatedTextId = side === 'player' ? 'no-player-defeated-text' : 'no-opponent-defeated-text';
+        
+        const defeatedArea = document.getElementById(defeatedAreaId);
+        const noDefeatedText = document.getElementById(noDefeatedTextId);
         
         // Hide the "no defeated" text if it's visible
         if (noDefeatedText && !noDefeatedText.classList.contains('d-none')) {
@@ -910,7 +915,6 @@ class PokemonGymBattleGame {
             <img src="${pokemon.image}" alt="${pokemon.name}">
             <div class="x-symbol">✗</div>
             <div class="pokemon-name">${this.capitalize(pokemon.name)}</div>
-            <div class="text-muted small">${side === 'player' ? 'Your' : 'Opponent'}</div>
         `;
         
         defeatedArea.appendChild(defeatedPokemon);

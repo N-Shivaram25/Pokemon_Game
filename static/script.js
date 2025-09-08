@@ -304,7 +304,8 @@ class PokemonGymBattleGame {
     updateCurrentStage() {
         // Determine current stage based on total wins
         for (let stage = 5; stage >= 1; stage--) {
-            if (this.totalWins >= this.stageUnlockRequirements[stage].winsRequired) {
+            const stageInfo = this.stageUnlockRequirements[stage];
+            if (this.totalWins >= stageInfo.winsRequired && this.totalWins <= stageInfo.maxWins) {
                 this.currentStage = stage;
                 break;
             }
@@ -473,7 +474,7 @@ class PokemonGymBattleGame {
             playerPreview.appendChild(div);
         });
         
-        // Show opponent team (no stats shown until battle starts)
+        // Show opponent team (Pokemon visible but stats hidden until battle starts)
         const opponentPreview = document.getElementById('opponent-team-preview');
         opponentPreview.innerHTML = '';
         opponentTeam.forEach(pokemon => {
@@ -484,7 +485,7 @@ class PokemonGymBattleGame {
                 <div class="preview-pokemon-info">
                     <div class="preview-pokemon-name">${this.capitalize(pokemon.name)}</div>
                     <div class="preview-pokemon-stage">Stage ${pokemon.stage}</div>
-                    <div class="preview-pokemon-hp">HP: ???</div>
+                    <div class="preview-pokemon-hp">Stats: Hidden</div>
                 </div>
             `;
             opponentPreview.appendChild(div);

@@ -1,4 +1,4 @@
-// Pokemon Gym Battle Simulator - Simplified Beginner System
+// Pokemon Gym Battle Simulator - Advanced Progression System
 
 class PokemonGymBattleGame {
     constructor() {
@@ -6,72 +6,53 @@ class PokemonGymBattleGame {
         this.gameState = 'trainer-setup'; // trainer-setup, pokemon-selection, dashboard, battle
         this.trainerName = '';
         this.pokemonCollection = [];
-        this.activePokemon = null;
+        this.battleTeam = []; // Max 3 Pokemon for battle
         this.totalWins = 0;
+        this.totalLosses = 0;
+        this.practiceWins = 0;
+        this.practiceLosses = 0;
+        this.gymWins = 0;
+        this.gymLosses = 0;
         this.gymBadges = 0;
         this.currentBattle = null;
-        this.winsUntilNextPokemon = 2;
+        this.pendingPokemonUnlock = null;
+        this.currentStage = 1;
         
-        // Basic starter Pokemon for beginners
-        this.starterPokemonList = [
-            'pikachu', 'bulbasaur', 'charmander', 'squirtle', 'machop',
-            'geodude', 'psyduck', 'poliwag', 'abra', 'slowpoke',
-            'magikarp', 'eevee', 'meowth', 'oddish', 'bellsprout',
-            'tentacool', 'ponyta', 'magnemite', 'seel', 'grimer'
-        ];
+        // Pokemon stages and unlock requirements
+        this.stageUnlockRequirements = {
+            1: { winsRequired: 0, winsPerUnlock: 2 },    // Stage 1: Every 2 wins
+            2: { winsRequired: 20, winsPerUnlock: 3 },   // Stage 2: After 20 wins, every 3 wins
+            3: { winsRequired: 35, winsPerUnlock: 3 },   // Stage 3: After 35 wins, every 3 wins  
+            4: { winsRequired: 50, winsPerUnlock: 3 },   // Stage 4: After 50 wins, every 3 wins
+            5: { winsRequired: 70, winsPerUnlock: 3 }    // Stage 5: After 70 wins, every 3 wins
+        };
         
-        // Pokemon evolution mapping
-        this.evolutionMap = {
-            'bulbasaur': 'ivysaur',
-            'charmander': 'charmeleon', 
-            'squirtle': 'wartortle',
-            'pikachu': 'raichu',
-            'machop': 'machoke',
-            'geodude': 'graveler',
-            'psyduck': 'golduck',
-            'poliwag': 'poliwhirl',
-            'abra': 'kadabra',
-            'slowpoke': 'slowbro',
-            'magikarp': 'gyarados',
-            'eevee': 'vaporeon',
-            'meowth': 'persian',
-            'oddish': 'gloom',
-            'bellsprout': 'weepinbell',
-            'tentacool': 'tentacruel',
-            'ponyta': 'rapidash',
-            'magnemite': 'magneton',
-            'seel': 'dewgong',
-            'grimer': 'muk'
+        // Pokemon by stage
+        this.pokemonByStage = {
+            1: ['pikachu', 'bulbasaur', 'charmander', 'squirtle', 'machop', 'geodude', 'psyduck', 'poliwag', 'abra', 'slowpoke', 'magikarp', 'eevee', 'meowth', 'oddish', 'bellsprout', 'tentacool', 'ponyta', 'magnemite', 'seel', 'grimer'],
+            2: ['ivysaur', 'charmeleon', 'wartortle', 'raichu', 'machoke', 'graveler', 'golduck', 'poliwhirl', 'kadabra', 'slowbro', 'gyarados', 'persian', 'gloom', 'weepinbell', 'tentacruel', 'rapidash', 'magneton', 'dewgong', 'muk', 'vaporeon'],
+            3: ['venusaur', 'charizard', 'blastoise', 'alakazam', 'machamp', 'golem', 'poliwrath', 'victreebel', 'vileplume', 'arcanine', 'nidoking', 'nidoqueen', 'cloyster', 'gengar', 'onix', 'rhyhorn', 'chansey', 'tangela', 'kangaskhan', 'scyther'],
+            4: ['dragonair', 'aerodactyl', 'snorlax', 'articuno', 'zapdos', 'moltres', 'dratini', 'lapras', 'hitmonlee', 'hitmonchan', 'lickitung', 'koffing', 'rhyhorn', 'chansey', 'tangela', 'kangaskhan', 'scyther', 'jynx', 'electabuzz', 'magmar'],
+            5: ['dragonite', 'mewtwo', 'mew', 'lugia', 'ho-oh', 'celebi', 'kyogre', 'groudon', 'rayquaza', 'dialga', 'palkia', 'giratina', 'arceus', 'reshiram', 'zekrom', 'kyurem', 'xerneas', 'yveltal', 'zygarde', 'necrozma']
         };
         
         // Practice battle opponents
         this.practiceOpponents = [
             'youngster joey', 'lass sarah', 'bug catcher tim', 'picnicker lisa',
-            'hiker mike', 'fisherman bob', 'sailor jack', 'camper alex'
+            'hiker mike', 'fisherman bob', 'sailor jack', 'camper alex',
+            'school kid ben', 'twins amy', 'black belt koichi', 'bird keeper rod'
         ];
         
         // Gym leaders
         this.gymLeaders = {
-            brock: {
-                name: 'Brock',
-                pokemon: ['onix', 'geodude'],
-                badge: 'Boulder Badge'
-            },
-            misty: {
-                name: 'Misty',
-                pokemon: ['staryu', 'starmie'],
-                badge: 'Cascade Badge'
-            },
-            surge: {
-                name: 'Lt. Surge',
-                pokemon: ['voltorb', 'pikachu', 'raichu'],
-                badge: 'Thunder Badge'
-            },
-            erika: {
-                name: 'Erika',
-                pokemon: ['victreebel', 'tangela', 'vileplume'],
-                badge: 'Rainbow Badge'
-            }
+            brock: { name: 'Brock', pokemon: ['onix', 'geodude'], badge: 'Boulder Badge' },
+            misty: { name: 'Misty', pokemon: ['staryu', 'starmie'], badge: 'Cascade Badge' },
+            surge: { name: 'Lt. Surge', pokemon: ['voltorb', 'pikachu', 'raichu'], badge: 'Thunder Badge' },
+            erika: { name: 'Erika', pokemon: ['victreebel', 'tangela', 'vileplume'], badge: 'Rainbow Badge' },
+            koga: { name: 'Koga', pokemon: ['koffing', 'muk', 'weezing'], badge: 'Soul Badge' },
+            sabrina: { name: 'Sabrina', pokemon: ['kadabra', 'alakazam', 'mr-mime'], badge: 'Marsh Badge' },
+            blaine: { name: 'Blaine', pokemon: ['growlithe', 'arcanine', 'rapidash'], badge: 'Volcano Badge' },
+            giovanni: { name: 'Giovanni', pokemon: ['rhyhorn', 'dugtrio', 'nidoking'], badge: 'Earth Badge' }
         };
         
         this.initializeGame();
@@ -94,7 +75,7 @@ class PokemonGymBattleGame {
         const select = document.getElementById('starter-pokemon');
         if (!select) return;
         
-        const sortedPokemon = [...this.starterPokemonList].sort();
+        const sortedPokemon = [...this.pokemonByStage[1]].sort();
         
         select.innerHTML = '<option value="">Select your Pokemon...</option>';
         
@@ -137,25 +118,18 @@ class PokemonGymBattleGame {
             });
         }
         
-        // Dashboard
-        const currentPokemonSelect = document.getElementById('current-pokemon-select');
-        if (currentPokemonSelect) {
-            currentPokemonSelect.addEventListener('change', () => {
-                this.changeActivePokemon();
-            });
-        }
-        
+        // Battle buttons
         const practiceBattleBtn = document.getElementById('practice-battle-btn');
         if (practiceBattleBtn) {
             practiceBattleBtn.addEventListener('click', () => {
-                this.startPracticeBattle();
+                this.initiatePracticeBattle();
             });
         }
         
         const gymChallengeBtn = document.getElementById('gym-challenge-btn');
         if (gymChallengeBtn) {
             gymChallengeBtn.addEventListener('click', () => {
-                this.startGymChallenge();
+                this.initiateGymChallenge();
             });
         }
         
@@ -174,13 +148,34 @@ class PokemonGymBattleGame {
             });
         }
         
-        // Victory modal
+        // Modal controls
         const continueBtn = document.getElementById('continue-btn');
         if (continueBtn) {
             continueBtn.addEventListener('click', () => {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('victory-modal'));
                 if (modal) modal.hide();
                 this.backToDashboard();
+            });
+        }
+        
+        const claimPokemonBtn = document.getElementById('claim-pokemon-btn');
+        if (claimPokemonBtn) {
+            claimPokemonBtn.addEventListener('click', () => {
+                this.claimNewPokemon();
+            });
+        }
+        
+        const skipOpponentBtn = document.getElementById('skip-opponent-btn');
+        if (skipOpponentBtn) {
+            skipOpponentBtn.addEventListener('click', () => {
+                this.skipOpponent();
+            });
+        }
+        
+        const startBattleBtn = document.getElementById('start-battle-btn');
+        if (startBattleBtn) {
+            startBattleBtn.addEventListener('click', () => {
+                this.confirmBattleStart();
             });
         }
     }
@@ -227,16 +222,16 @@ class PokemonGymBattleGame {
         try {
             const pokemon = await this.fetchPokemon(pokemonName);
             
-            // Add to collection with wins tracking
+            // Add to collection with stage tracking
             const pokemonWithStats = {
                 ...pokemon,
+                stage: 1,
                 wins: 0,
-                isEvolved: false,
                 originalName: pokemonName
             };
             
             this.pokemonCollection = [pokemonWithStats];
-            this.activePokemon = pokemonWithStats;
+            this.battleTeam = [pokemonWithStats]; // Auto-select as battle team
             
             this.saveGameData();
             this.showDashboard();
@@ -258,13 +253,15 @@ class PokemonGymBattleGame {
         // Update dashboard
         this.updateDashboard();
         this.updatePokemonCollection();
-        this.updateActivePokemonSelector();
+        this.updateBattleTeamSelection();
+        this.updateCurrentStage();
         this.gameState = 'dashboard';
     }
     
     updateDashboard() {
         document.getElementById('trainer-name-display').textContent = this.trainerName;
         document.getElementById('total-wins').textContent = this.totalWins;
+        document.getElementById('total-losses').textContent = this.totalLosses;
         document.getElementById('gym-badges').textContent = this.gymBadges;
         document.getElementById('pokemon-collection-count').textContent = this.pokemonCollection.length;
         
@@ -277,8 +274,8 @@ class PokemonGymBattleGame {
         const gymChallengeBtn = document.getElementById('gym-challenge-btn');
         const gymStatusText = document.getElementById('gym-status-text');
         
-        // Practice battle availability
-        if (this.activePokemon) {
+        // Practice battle availability (need at least 1 Pokemon selected)
+        if (this.battleTeam.length > 0) {
             practiceBattleBtn.disabled = false;
         } else {
             practiceBattleBtn.disabled = true;
@@ -287,7 +284,7 @@ class PokemonGymBattleGame {
         // Gym challenge availability (5 wins + 2+ Pokemon)
         const canChallengeGym = this.totalWins >= 5 && this.pokemonCollection.length >= 2;
         
-        if (canChallengeGym) {
+        if (canChallengeGym && this.battleTeam.length >= 2) {
             gymChallengeBtn.disabled = false;
             gymStatusText.textContent = 'Ready to challenge!';
             gymStatusText.className = 'text-success d-block mt-2';
@@ -295,10 +292,22 @@ class PokemonGymBattleGame {
             gymChallengeBtn.disabled = true;
             if (this.totalWins < 5) {
                 gymStatusText.textContent = `Need ${5 - this.totalWins} more wins`;
-            } else {
+            } else if (this.pokemonCollection.length < 2) {
                 gymStatusText.textContent = 'Need at least 2 Pokemon';
+            } else if (this.battleTeam.length < 2) {
+                gymStatusText.textContent = 'Select at least 2 Pokemon for battle';
             }
             gymStatusText.className = 'text-muted d-block mt-2';
+        }
+    }
+    
+    updateCurrentStage() {
+        // Determine current stage based on total wins
+        for (let stage = 5; stage >= 1; stage--) {
+            if (this.totalWins >= this.stageUnlockRequirements[stage].winsRequired) {
+                this.currentStage = stage;
+                break;
+            }
         }
     }
     
@@ -306,18 +315,17 @@ class PokemonGymBattleGame {
         const container = document.getElementById('pokemon-collection-display');
         container.innerHTML = '';
         
-        this.pokemonCollection.forEach((pokemon) => {
+        this.pokemonCollection.forEach((pokemon, index) => {
             const item = document.createElement('div');
-            item.className = `collection-pokemon-item ${pokemon.isEvolved ? 'evolved-pokemon' : ''}`;
+            item.className = `collection-pokemon-item ${pokemon.stage >= 2 ? 'evolved-pokemon' : ''}`;
             
             const evolutionProgress = Math.min((pokemon.wins / 15) * 100, 100);
-            const canEvolve = pokemon.wins >= 15 && !pokemon.isEvolved && this.evolutionMap[pokemon.originalName];
             
             item.innerHTML = `
                 <img src="${pokemon.image}" alt="${pokemon.name}">
                 <div class="pokemon-name">${this.capitalize(pokemon.name)}</div>
                 <div class="pokemon-wins">${pokemon.wins} wins</div>
-                ${canEvolve ? '<small class="text-warning">Ready to evolve!</small>' : ''}
+                <span class="stage-indicator stage-${pokemon.stage}">Stage ${pokemon.stage}</span>
                 <div class="evolution-progress">
                     <div class="evolution-bar" style="width: ${evolutionProgress}%"></div>
                 </div>
@@ -327,64 +335,84 @@ class PokemonGymBattleGame {
         });
     }
     
-    updateActivePokemonSelector() {
-        const select = document.getElementById('current-pokemon-select');
-        select.innerHTML = '<option value="">Select Pokemon...</option>';
+    updateBattleTeamSelection() {
+        const container = document.getElementById('battle-team-selection');
+        container.innerHTML = '';
         
         this.pokemonCollection.forEach((pokemon, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = this.capitalize(pokemon.name);
-            if (this.activePokemon && pokemon.name === this.activePokemon.name) {
-                option.selected = true;
-            }
-            select.appendChild(option);
+            const checkbox = document.createElement('div');
+            checkbox.className = 'team-pokemon-checkbox';
+            
+            const isSelected = this.battleTeam.some(p => p.name === pokemon.name);
+            
+            checkbox.innerHTML = `
+                <input type="checkbox" id="team-pokemon-${index}" ${isSelected ? 'checked' : ''} 
+                       ${this.battleTeam.length >= 3 && !isSelected ? 'disabled' : ''}>
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+                <span>${this.capitalize(pokemon.name)}</span>
+                <span class="stage-indicator stage-${pokemon.stage}">S${pokemon.stage}</span>
+            `;
+            
+            const checkboxInput = checkbox.querySelector('input');
+            checkboxInput.addEventListener('change', () => {
+                this.updateBattleTeam(index, checkboxInput.checked);
+            });
+            
+            container.appendChild(checkbox);
         });
     }
     
-    changeActivePokemon() {
-        const selectedIndex = document.getElementById('current-pokemon-select').value;
-        if (selectedIndex !== '') {
-            this.activePokemon = this.pokemonCollection[parseInt(selectedIndex)];
-            this.updateBattleAvailability();
-            this.saveGameData();
+    updateBattleTeam(pokemonIndex, isSelected) {
+        const pokemon = this.pokemonCollection[pokemonIndex];
+        
+        if (isSelected) {
+            // Add to battle team if not already there and under limit
+            if (this.battleTeam.length < 3 && !this.battleTeam.some(p => p.name === pokemon.name)) {
+                this.battleTeam.push(pokemon);
+            }
+        } else {
+            // Remove from battle team
+            this.battleTeam = this.battleTeam.filter(p => p.name !== pokemon.name);
         }
+        
+        this.updateBattleTeamSelection();
+        this.updateBattleAvailability();
+        this.saveGameData();
     }
     
-    async startPracticeBattle() {
-        if (!this.activePokemon) return;
+    async initiatePracticeBattle() {
+        if (this.battleTeam.length === 0) return;
         
         this.showLoading(true);
         
         try {
-            // Select random opponent
+            // Generate opponent team matching player team size
             const opponentName = this.practiceOpponents[Math.floor(Math.random() * this.practiceOpponents.length)];
-            const opponentPokemonName = this.starterPokemonList[Math.floor(Math.random() * this.starterPokemonList.length)];
-            const opponentPokemon = await this.fetchPokemon(opponentPokemonName);
+            const opponentTeam = [];
             
-            // Setup battle
-            this.currentBattle = {
-                type: 'practice',
-                opponent: opponentName,
-                playerPokemon: { ...this.activePokemon },
-                opponentPokemon: opponentPokemon,
-                currentTurn: 'player'
-            };
+            // Generate opponent Pokemon of similar or slightly lower stage
+            for (let i = 0; i < this.battleTeam.length; i++) {
+                const playerMaxStage = Math.max(...this.battleTeam.map(p => p.stage));
+                const opponentStage = Math.max(1, playerMaxStage - Math.floor(Math.random() * 2));
+                const availablePokemon = this.pokemonByStage[opponentStage];
+                const randomPokemon = availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
+                
+                const pokemon = await this.fetchPokemon(randomPokemon);
+                pokemon.stage = opponentStage;
+                opponentTeam.push(pokemon);
+            }
             
-            // Reset HP
-            this.currentBattle.playerPokemon.currentHP = this.currentBattle.playerPokemon.maxHP;
-            this.currentBattle.opponentPokemon.currentHP = this.currentBattle.opponentPokemon.maxHP;
-            
-            this.showBattleArena();
+            // Show opponent preview
+            this.showOpponentPreview(opponentName, [...this.battleTeam], opponentTeam, 'practice');
             
         } catch (error) {
-            this.showError('Failed to start practice battle. Please try again.');
+            this.showError('Failed to generate opponent. Please try again.');
             this.showLoading(false);
         }
     }
     
-    async startGymChallenge() {
-        if (!this.activePokemon || this.pokemonCollection.length < 2) return;
+    async initiateGymChallenge() {
+        if (this.battleTeam.length < 2) return;
         
         this.showLoading(true);
         
@@ -392,29 +420,118 @@ class PokemonGymBattleGame {
             // Get gym leader based on badges
             const gymLeaderKey = Object.keys(this.gymLeaders)[this.gymBadges % Object.keys(this.gymLeaders).length];
             const gymLeader = this.gymLeaders[gymLeaderKey];
-            const opponentPokemonName = gymLeader.pokemon[Math.floor(Math.random() * gymLeader.pokemon.length)];
-            const opponentPokemon = await this.fetchPokemon(opponentPokemonName);
+            const opponentTeam = [];
             
-            // Setup gym battle
-            this.currentBattle = {
-                type: 'gym',
-                opponent: gymLeader.name,
-                badge: gymLeader.badge,
-                playerPokemon: { ...this.activePokemon },
-                opponentPokemon: opponentPokemon,
-                currentTurn: 'player'
-            };
+            // Generate gym leader team (stronger Pokemon, matching player team size)
+            const neededPokemon = Math.min(this.battleTeam.length, 3);
+            for (let i = 0; i < neededPokemon; i++) {
+                const pokemonName = gymLeader.pokemon[i % gymLeader.pokemon.length];
+                const pokemon = await this.fetchPokemon(pokemonName);
+                const playerMaxStage = Math.max(...this.battleTeam.map(p => p.stage));
+                pokemon.stage = Math.min(5, playerMaxStage + 1); // Slightly higher stage
+                opponentTeam.push(pokemon);
+            }
             
-            // Reset HP
-            this.currentBattle.playerPokemon.currentHP = this.currentBattle.playerPokemon.maxHP;
-            this.currentBattle.opponentPokemon.currentHP = this.currentBattle.opponentPokemon.maxHP;
-            
-            this.showBattleArena();
+            // Show opponent preview
+            this.showOpponentPreview(gymLeader.name, [...this.battleTeam], opponentTeam, 'gym', gymLeader.badge);
             
         } catch (error) {
-            this.showError('Failed to start gym challenge. Please try again.');
+            this.showError('Failed to generate gym challenge. Please try again.');
             this.showLoading(false);
         }
+    }
+    
+    showOpponentPreview(opponentName, playerTeam, opponentTeam, battleType, badge = null) {
+        this.showLoading(false);
+        
+        // Store battle data for later use
+        this.pendingBattle = {
+            type: battleType,
+            opponent: opponentName,
+            badge: badge,
+            playerTeam: playerTeam,
+            opponentTeam: opponentTeam
+        };
+        
+        // Update preview modal
+        document.getElementById('preview-opponent-name').textContent = opponentName;
+        
+        // Show player team
+        const playerPreview = document.getElementById('player-team-preview');
+        playerPreview.innerHTML = '';
+        playerTeam.forEach(pokemon => {
+            const div = document.createElement('div');
+            div.className = 'preview-pokemon';
+            div.innerHTML = `
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+                <div class="preview-pokemon-info">
+                    <div class="preview-pokemon-name">${this.capitalize(pokemon.name)}</div>
+                    <div class="preview-pokemon-stage">Stage ${pokemon.stage}</div>
+                    <div class="preview-pokemon-hp">HP: ${pokemon.maxHP}</div>
+                </div>
+            `;
+            playerPreview.appendChild(div);
+        });
+        
+        // Show opponent team (no stats shown until battle starts)
+        const opponentPreview = document.getElementById('opponent-team-preview');
+        opponentPreview.innerHTML = '';
+        opponentTeam.forEach(pokemon => {
+            const div = document.createElement('div');
+            div.className = 'preview-pokemon';
+            div.innerHTML = `
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+                <div class="preview-pokemon-info">
+                    <div class="preview-pokemon-name">${this.capitalize(pokemon.name)}</div>
+                    <div class="preview-pokemon-stage">Stage ${pokemon.stage}</div>
+                    <div class="preview-pokemon-hp">HP: ???</div>
+                </div>
+            `;
+            opponentPreview.appendChild(div);
+        });
+        
+        // Show preview modal
+        const modal = new bootstrap.Modal(document.getElementById('opponent-preview-modal'));
+        modal.show();
+    }
+    
+    skipOpponent() {
+        // Close modal and generate new opponent
+        const modal = bootstrap.Modal.getInstance(document.getElementById('opponent-preview-modal'));
+        if (modal) modal.hide();
+        
+        // Regenerate opponent based on battle type
+        if (this.pendingBattle.type === 'practice') {
+            this.initiatePracticeBattle();
+        } else {
+            this.initiateGymChallenge();
+        }
+    }
+    
+    confirmBattleStart() {
+        // Close modal and start battle
+        const modal = bootstrap.Modal.getInstance(document.getElementById('opponent-preview-modal'));
+        if (modal) modal.hide();
+        
+        this.startBattle();
+    }
+    
+    async startBattle() {
+        this.showLoading(true);
+        
+        // Setup battle with teams
+        this.currentBattle = {
+            type: this.pendingBattle.type,
+            opponent: this.pendingBattle.opponent,
+            badge: this.pendingBattle.badge,
+            playerTeam: this.pendingBattle.playerTeam.map(p => ({ ...p, currentHP: p.maxHP })),
+            opponentTeam: this.pendingBattle.opponentTeam.map(p => ({ ...p, currentHP: p.maxHP })),
+            currentTurn: 'player',
+            playerActiveIndex: 0,
+            opponentActiveIndex: 0
+        };
+        
+        this.showBattleArena();
     }
     
     showBattleArena() {
@@ -429,17 +546,27 @@ class PokemonGymBattleGame {
         document.getElementById('battle-trainer-name').textContent = this.trainerName;
         document.getElementById('battle-opponent-name').textContent = this.currentBattle.opponent;
         
-        // Display Pokemon
-        this.displayBattlePokemon(this.currentBattle.playerPokemon, 'player');
-        this.displayBattlePokemon(this.currentBattle.opponentPokemon, 'opponent');
+        // Display active Pokemon
+        this.updateBattleDisplay();
         
         // Clear battle log and add initial entry
         document.getElementById('battle-log').innerHTML = '';
-        this.addLogEntry(`Battle begins! ${this.capitalize(this.currentBattle.playerPokemon.name)} vs ${this.capitalize(this.currentBattle.opponentPokemon.name)}!`, 'system');
+        const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
+        const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
+        this.addLogEntry(`${this.battleTeam.length}v${this.currentBattle.opponentTeam.length} Battle begins! ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
         
         // Enable attack button
         document.getElementById('attack-btn').disabled = false;
         this.gameState = 'battle';
+    }
+    
+    updateBattleDisplay() {
+        const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
+        const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
+        
+        // Display current active Pokemon
+        this.displayBattlePokemon(playerPokemon, 'player');
+        this.displayBattlePokemon(opponentPokemon, 'opponent');
     }
     
     async fetchPokemon(pokemonName) {
@@ -518,6 +645,9 @@ class PokemonGymBattleGame {
         
         document.getElementById('attack-btn').disabled = true;
         
+        const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
+        const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
+        
         // Add attack animation
         document.getElementById('player-image').classList.add('attacking');
         setTimeout(() => {
@@ -525,21 +655,21 @@ class PokemonGymBattleGame {
         }, 500);
         
         // Calculate damage
-        const damage = this.calculateDamage(this.currentBattle.playerPokemon, this.currentBattle.opponentPokemon);
-        this.currentBattle.opponentPokemon.currentHP = Math.max(0, this.currentBattle.opponentPokemon.currentHP - damage);
+        const damage = this.calculateDamage(playerPokemon, opponentPokemon);
+        opponentPokemon.currentHP = Math.max(0, opponentPokemon.currentHP - damage);
         
         // Update display
-        this.updateHPBar(this.currentBattle.opponentPokemon, 'opponent');
+        this.updateHPBar(opponentPokemon, 'opponent');
         
         // Add to battle log
         this.addLogEntry(
-            `${this.capitalize(this.currentBattle.playerPokemon.name)} attacks for ${damage} damage!`,
+            `${this.capitalize(playerPokemon.name)} attacks for ${damage} damage!`,
             'player-turn'
         );
         
         // Check if opponent Pokemon is defeated
-        if (this.currentBattle.opponentPokemon.currentHP <= 0) {
-            this.endBattle('player');
+        if (opponentPokemon.currentHP <= 0) {
+            this.handlePokemonDefeated('opponent');
             return;
         }
         
@@ -555,6 +685,9 @@ class PokemonGymBattleGame {
             return;
         }
         
+        const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
+        const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
+        
         // Add attack animation
         document.getElementById('opponent-image').classList.add('attacking');
         setTimeout(() => {
@@ -562,27 +695,72 @@ class PokemonGymBattleGame {
         }, 500);
         
         // Calculate damage
-        const damage = this.calculateDamage(this.currentBattle.opponentPokemon, this.currentBattle.playerPokemon);
-        this.currentBattle.playerPokemon.currentHP = Math.max(0, this.currentBattle.playerPokemon.currentHP - damage);
+        const damage = this.calculateDamage(opponentPokemon, playerPokemon);
+        playerPokemon.currentHP = Math.max(0, playerPokemon.currentHP - damage);
         
         // Update display
-        this.updateHPBar(this.currentBattle.playerPokemon, 'player');
+        this.updateHPBar(playerPokemon, 'player');
         
         // Add to battle log
         this.addLogEntry(
-            `${this.capitalize(this.currentBattle.opponentPokemon.name)} attacks for ${damage} damage!`,
+            `${this.capitalize(opponentPokemon.name)} attacks for ${damage} damage!`,
             'computer-turn'
         );
         
         // Check if player Pokemon is defeated
-        if (this.currentBattle.playerPokemon.currentHP <= 0) {
-            this.endBattle('opponent');
+        if (playerPokemon.currentHP <= 0) {
+            this.handlePokemonDefeated('player');
             return;
         }
         
         // Switch back to player turn
         this.currentBattle.currentTurn = 'player';
         document.getElementById('attack-btn').disabled = false;
+    }
+    
+    handlePokemonDefeated(defeatedSide) {
+        const defeatedIndex = defeatedSide === 'player' ? this.currentBattle.playerActiveIndex : this.currentBattle.opponentActiveIndex;
+        const defeatedTeam = defeatedSide === 'player' ? this.currentBattle.playerTeam : this.currentBattle.opponentTeam;
+        const defeatedPokemon = defeatedTeam[defeatedIndex];
+        
+        this.addLogEntry(`${this.capitalize(defeatedPokemon.name)} is defeated!`, 'system');
+        
+        // Check for next Pokemon
+        let nextIndex = -1;
+        for (let i = 0; i < defeatedTeam.length; i++) {
+            if (i !== defeatedIndex && defeatedTeam[i].currentHP > 0) {
+                nextIndex = i;
+                break;
+            }
+        }
+        
+        if (nextIndex !== -1) {
+            // Switch to next Pokemon
+            if (defeatedSide === 'player') {
+                this.currentBattle.playerActiveIndex = nextIndex;
+            } else {
+                this.currentBattle.opponentActiveIndex = nextIndex;
+            }
+            
+            const nextPokemon = defeatedTeam[nextIndex];
+            this.addLogEntry(`${defeatedSide === 'player' ? this.trainerName : this.currentBattle.opponent} sends out ${this.capitalize(nextPokemon.name)}!`, 'system');
+            
+            this.updateBattleDisplay();
+            
+            // Continue battle
+            if (defeatedSide === 'opponent') {
+                this.currentBattle.currentTurn = 'player';
+                document.getElementById('attack-btn').disabled = false;
+            } else {
+                this.currentBattle.currentTurn = 'opponent';
+                setTimeout(() => {
+                    this.opponentAttack();
+                }, 2000);
+            }
+        } else {
+            // End battle - no more Pokemon
+            this.endBattle(defeatedSide === 'player' ? 'opponent' : 'player');
+        }
     }
     
     calculateDamage(attacker, defender) {
@@ -598,28 +776,28 @@ class PokemonGymBattleGame {
         if (winner === 'player') {
             this.totalWins++;
             
-            // Update active Pokemon wins
-            const activeIndex = this.pokemonCollection.findIndex(p => p.name === this.activePokemon.name);
-            if (activeIndex !== -1) {
-                this.pokemonCollection[activeIndex].wins++;
-                
-                // Check for evolution (15 wins)
-                const pokemon = this.pokemonCollection[activeIndex];
-                if (pokemon.wins >= 15 && !pokemon.isEvolved && this.evolutionMap[pokemon.originalName]) {
-                    await this.evolvePokemon(activeIndex);
-                }
+            if (this.currentBattle.type === 'practice') {
+                this.practiceWins++;
+            } else {
+                this.gymWins++;
+                this.gymBadges++;
             }
             
-            // Give random Pokemon after every 2 wins
-            if (this.totalWins % 2 === 0) {
-                await this.giveRandomPokemon();
-            }
+            // Update Pokemon wins for battle team
+            this.battleTeam.forEach(battlePokemon => {
+                const collectionIndex = this.pokemonCollection.findIndex(p => p.name === battlePokemon.name);
+                if (collectionIndex !== -1) {
+                    this.pokemonCollection[collectionIndex].wins++;
+                }
+            });
+            
+            // Check for Pokemon unlock
+            await this.checkForPokemonUnlock();
             
             if (this.currentBattle.type === 'gym') {
-                this.gymBadges++;
                 this.addLogEntry(`🏆 Victory! You earned the ${this.currentBattle.badge}!`, 'victory');
             } else {
-                this.addLogEntry(`🎉 Victory! You gained valuable experience!`, 'victory');
+                this.addLogEntry(`🎉 Victory! Great battle!`, 'victory');
             }
             
             this.saveGameData();
@@ -629,7 +807,16 @@ class PokemonGymBattleGame {
             }, 1000);
             
         } else {
+            this.totalLosses++;
+            
+            if (this.currentBattle.type === 'practice') {
+                this.practiceLosses++;
+            } else {
+                this.gymLosses++;
+            }
+            
             this.addLogEntry(`💔 Defeat! ${this.currentBattle.opponent} wins this battle!`, 'defeat');
+            this.saveGameData();
             
             setTimeout(() => {
                 this.showDefeatModal();
@@ -637,35 +824,20 @@ class PokemonGymBattleGame {
         }
     }
     
-    async evolvePokemon(pokemonIndex) {
-        const pokemon = this.pokemonCollection[pokemonIndex];
-        const evolutionName = this.evolutionMap[pokemon.originalName];
+    async checkForPokemonUnlock() {
+        this.updateCurrentStage();
+        const currentStageInfo = this.stageUnlockRequirements[this.currentStage];
         
-        try {
-            const evolvedData = await this.fetchPokemon(evolutionName);
-            
-            this.pokemonCollection[pokemonIndex] = {
-                ...evolvedData,
-                wins: pokemon.wins,
-                isEvolved: true,
-                originalName: pokemon.originalName
-            };
-            
-            // Update active Pokemon if it's the one that evolved
-            if (this.activePokemon && this.activePokemon.name === pokemon.name) {
-                this.activePokemon = this.pokemonCollection[pokemonIndex];
-            }
-            
-            this.addLogEntry(`🌟 ${this.capitalize(pokemon.name)} evolved into ${this.capitalize(evolutionName)}!`, 'victory');
-            
-        } catch (error) {
-            console.error('Evolution failed:', error);
-        }
-    }
-    
-    async giveRandomPokemon() {
-        try {
-            const availablePokemon = this.starterPokemonList.filter(name => 
+        // Check if we should unlock a Pokemon
+        const winsAfterStageStart = Math.max(0, this.totalWins - currentStageInfo.winsRequired);
+        const shouldHavePokemon = Math.floor(winsAfterStageStart / currentStageInfo.winsPerUnlock);
+        
+        // Count Pokemon from current stage
+        const currentStageCount = this.pokemonCollection.filter(p => p.stage === this.currentStage).length;
+        
+        if (shouldHavePokemon > currentStageCount) {
+            // Generate new Pokemon from current stage
+            const availablePokemon = this.pokemonByStage[this.currentStage].filter(name => 
                 !this.pokemonCollection.some(p => p.originalName === name)
             );
             
@@ -673,19 +845,48 @@ class PokemonGymBattleGame {
                 const randomPokemon = availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
                 const newPokemon = await this.fetchPokemon(randomPokemon);
                 
-                const pokemonWithStats = {
+                this.pendingPokemonUnlock = {
                     ...newPokemon,
+                    stage: this.currentStage,
                     wins: 0,
-                    isEvolved: false,
                     originalName: randomPokemon
                 };
                 
-                this.pokemonCollection.push(pokemonWithStats);
-                this.addLogEntry(`🎁 You received a new Pokemon: ${this.capitalize(randomPokemon)}!`, 'victory');
+                // Show unlock modal after victory modal
+                setTimeout(() => {
+                    this.showPokemonUnlockModal();
+                }, 3000);
             }
-        } catch (error) {
-            console.error('Failed to give random Pokemon:', error);
         }
+    }
+    
+    showPokemonUnlockModal() {
+        if (!this.pendingPokemonUnlock) return;
+        
+        const unlockDisplay = document.getElementById('unlock-pokemon-display');
+        const unlockMessage = document.getElementById('unlock-message');
+        
+        unlockMessage.textContent = `You've unlocked a Stage ${this.pendingPokemonUnlock.stage} Pokemon!`;
+        
+        unlockDisplay.innerHTML = `
+            <img src="${this.pendingPokemonUnlock.image}" alt="${this.pendingPokemonUnlock.name}">
+            <div class="pokemon-name">${this.capitalize(this.pendingPokemonUnlock.name)}</div>
+            <span class="stage-indicator stage-${this.pendingPokemonUnlock.stage}">Stage ${this.pendingPokemonUnlock.stage}</span>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('pokemon-unlock-modal'));
+        modal.show();
+    }
+    
+    claimNewPokemon() {
+        if (this.pendingPokemonUnlock) {
+            this.pokemonCollection.push(this.pendingPokemonUnlock);
+            this.pendingPokemonUnlock = null;
+            this.saveGameData();
+        }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('pokemon-unlock-modal'));
+        if (modal) modal.hide();
     }
     
     showVictoryModal() {
@@ -706,13 +907,13 @@ class PokemonGymBattleGame {
         } else {
             let message = `
                 <h5>Great job, ${this.trainerName}!</h5>
-                <p>You defeated ${this.currentBattle.opponent} in practice battle!</p>
+                <p>You defeated ${this.currentBattle.opponent} in a ${this.battleTeam.length}v${this.currentBattle.opponentTeam.length} battle!</p>
                 <div class="mt-3">
                     <p><i class="fas fa-trophy text-success"></i> Total Wins: ${this.totalWins}</p>
             `;
             
-            if (this.totalWins % 2 === 0) {
-                message += '<p class="text-primary">🎁 You received a new Pokemon!</p>';
+            if (this.pendingPokemonUnlock) {
+                message += '<p class="text-primary">🎁 You unlocked a new Pokemon!</p>';
             }
             
             message += '</div>';
@@ -734,6 +935,7 @@ class PokemonGymBattleGame {
             <h5>Don't give up, ${this.trainerName}!</h5>
             <p>${this.currentBattle.opponent} was stronger this time, but you can try again!</p>
             <div class="mt-3">
+                <p><i class="fas fa-times text-danger"></i> Total Losses: ${this.totalLosses}</p>
                 <p>Keep practicing to become a better trainer!</p>
             </div>
         `;
@@ -747,8 +949,9 @@ class PokemonGymBattleGame {
         
         this.updateDashboard();
         this.updatePokemonCollection();
-        this.updateActivePokemonSelector();
+        this.updateBattleTeamSelection();
         this.currentBattle = null;
+        this.pendingBattle = null;
         this.gameState = 'dashboard';
     }
     
@@ -766,10 +969,15 @@ class PokemonGymBattleGame {
         const gameData = {
             trainerName: this.trainerName,
             pokemonCollection: this.pokemonCollection,
-            activePokemon: this.activePokemon,
+            battleTeam: this.battleTeam,
             totalWins: this.totalWins,
+            totalLosses: this.totalLosses,
+            practiceWins: this.practiceWins,
+            practiceLosses: this.practiceLosses,
+            gymWins: this.gymWins,
+            gymLosses: this.gymLosses,
             gymBadges: this.gymBadges,
-            winsUntilNextPokemon: this.winsUntilNextPokemon
+            currentStage: this.currentStage
         };
         
         localStorage.setItem('pokemonGymBattleGame', JSON.stringify(gameData));
@@ -782,10 +990,15 @@ class PokemonGymBattleGame {
             const gameData = JSON.parse(savedData);
             this.trainerName = gameData.trainerName || '';
             this.pokemonCollection = gameData.pokemonCollection || [];
-            this.activePokemon = gameData.activePokemon || null;
+            this.battleTeam = gameData.battleTeam || [];
             this.totalWins = gameData.totalWins || 0;
+            this.totalLosses = gameData.totalLosses || 0;
+            this.practiceWins = gameData.practiceWins || 0;
+            this.practiceLosses = gameData.practiceLosses || 0;
+            this.gymWins = gameData.gymWins || 0;
+            this.gymLosses = gameData.gymLosses || 0;
             this.gymBadges = gameData.gymBadges || 0;
-            this.winsUntilNextPokemon = gameData.winsUntilNextPokemon || 2;
+            this.currentStage = gameData.currentStage || 1;
         }
     }
     

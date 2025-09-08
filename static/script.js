@@ -738,13 +738,16 @@ class PokemonGymBattleGame {
         this.showLoading(true);
         
         // Setup battle with teams
+        // Randomize who goes first
+        const firstTurn = Math.random() < 0.5 ? 'player' : 'opponent';
+        
         this.currentBattle = {
             type: this.pendingBattle.type,
             opponent: this.pendingBattle.opponent,
             badge: this.pendingBattle.badge,
             playerTeam: this.pendingBattle.playerTeam.map(p => ({ ...p, currentHP: p.maxHP })),
             opponentTeam: this.pendingBattle.opponentTeam.map(p => ({ ...p, currentHP: p.maxHP })),
-            currentTurn: 'player',
+            currentTurn: firstTurn,
             playerActiveIndex: 0,
             opponentActiveIndex: 0
         };
@@ -773,8 +776,19 @@ class PokemonGymBattleGame {
         const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
         this.addLogEntry(`${this.currentBattle.playerTeam.length}v${this.currentBattle.opponentTeam.length} Battle begins! ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
         
-        // Enable attack button
-        document.getElementById('attack-btn').disabled = false;
+        // Add turn indicator and manage attack button based on who goes first
+        if (this.currentBattle.currentTurn === 'player') {
+            this.addLogEntry(`${this.trainerName} goes first!`, 'system');
+            document.getElementById('attack-btn').disabled = false;
+        } else {
+            this.addLogEntry(`${this.currentBattle.opponent} goes first!`, 'system');
+            document.getElementById('attack-btn').disabled = true;
+            // Start opponent's turn after a delay
+            setTimeout(() => {
+                this.opponentAttack();
+            }, 1500);
+        }
+        
         this.gameState = 'battle';
     }
     
@@ -975,15 +989,18 @@ class PokemonGymBattleGame {
             
             this.updateBattleDisplay();
             
-            // Continue battle
+            // Continue battle - when switching Pokemon, that side gets the next turn
             if (defeatedSide === 'opponent') {
-                this.currentBattle.currentTurn = 'player';
-                document.getElementById('attack-btn').disabled = false;
-            } else {
+                // Opponent just switched, so opponent gets the turn
                 this.currentBattle.currentTurn = 'opponent';
+                document.getElementById('attack-btn').disabled = true;
                 setTimeout(() => {
                     this.opponentAttack();
                 }, 2000);
+            } else {
+                // Player just switched, so player gets the turn
+                this.currentBattle.currentTurn = 'player';
+                document.getElementById('attack-btn').disabled = false;
             }
         } else {
             // End battle - no more Pokemon

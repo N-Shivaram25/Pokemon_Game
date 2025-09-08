@@ -680,14 +680,14 @@ class PokemonGymBattleGame {
             
             try {
                 const dragData = JSON.parse(e.dataTransfer.getData('application/json'));
-                this.handleDrop(dragData, container);
+                this.handleDrop(dragData, container, e);
             } catch (error) {
                 console.error('Drop failed:', error);
             }
         });
     }
     
-    handleDrop(dragData, dropContainer) {
+    handleDrop(dragData, dropContainer, event) {
         const { pokemon, source, originalIndex } = dragData;
         const isTeamContainer = dropContainer.id === 'battle-team-selection' || dropContainer.id === 'preview-team-selection';
         const isAvailableContainer = dropContainer.id === 'available-pokemon-list';
@@ -699,15 +699,42 @@ class PokemonGymBattleGame {
             // Remove from team
             this.battleTeam = this.battleTeam.filter(p => p.name !== pokemon.name);
         } else if (source === 'available' && isTeamContainer) {
-            // Add to team - if team is full, replace the first Pokemon
-            if (this.battleTeam.length < 3) {
-                this.battleTeam.push(pokemon);
+            // Find the specific drop target - check if dropping on an empty slot or specific position
+            const dropTarget = event.target.closest('.pokemon-card-draggable, .empty-slot');
+            let targetPosition = -1;
+            
+            if (dropTarget && dropTarget.querySelector('.battle-position-indicator')) {
+                const positionText = dropTarget.querySelector('.battle-position-indicator').textContent;
+                targetPosition = parseInt(positionText) - 1; // Convert to 0-based index
+            }
+            
+            if (targetPosition >= 0 && targetPosition < 3) {
+                // Replace Pokemon at specific position
+                if (this.battleTeam[targetPosition]) {
+                    // Position already occupied, swap Pokemon
+                    console.log(`Replacing ${this.battleTeam[targetPosition].name} with ${pokemon.name} at position ${targetPosition + 1}`);
+                } else {
+                    console.log(`Adding ${pokemon.name} to position ${targetPosition + 1}`);
+                }
+                this.battleTeam[targetPosition] = pokemon;
+                
+                // Fill any gaps in the array
+                for (let i = 0; i < this.battleTeam.length; i++) {
+                    if (!this.battleTeam[i]) {
+                        this.battleTeam.splice(i, 1);
+                        i--;
+                    }
+                }
             } else {
-                // Team is full, swap with the first Pokemon
-                const removedPokemon = this.battleTeam[0]; // Remove first Pokemon
-                this.battleTeam[0] = pokemon; // Replace with new Pokemon
-                // The removed Pokemon will automatically appear in available list during refresh
-                console.log(`Swapped ${removedPokemon.name} with ${pokemon.name}`);
+                // Add to team normally - find next available position
+                if (this.battleTeam.length < 3) {
+                    this.battleTeam.push(pokemon);
+                } else {
+                    // Team is full, replace the last Pokemon
+                    const removedPokemon = this.battleTeam[2];
+                    this.battleTeam[2] = pokemon;
+                    console.log(`Team full, replaced ${removedPokemon.name} with ${pokemon.name}`);
+                }
             }
         } else if (source === 'team' && isTeamContainer) {
             // Reorder within team

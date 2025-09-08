@@ -314,16 +314,34 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
 }
 
-.opponent-select {
-    border-radius: 10px;
-    border: 2px solid var(--pokemon-red);
-    padding: 12px;
-    font-size: 16px;
+/* Trainer Dashboard Styles */
+.trainer-stats-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
 }
 
-.opponent-select:focus {
-    border-color: var(--pokemon-yellow);
-    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+.battle-option-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+}
+
+.battle-option-card:hover {
+    transform: translateY(-5px);
+}
+
+.battle-info-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
 }
 
 /* Team Selection Styles */

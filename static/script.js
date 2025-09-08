@@ -1,77 +1,113 @@
-// Pokemon Tournament Battle Simulator - Game Logic
+// Pokemon Gym Battle Simulator - Beginner Trainer System
 
-class PokemonTournamentGame {
+class PokemonGymBattleGame {
     constructor() {
         // Game state
-        this.gameState = 'trainer-setup'; // trainer-setup, team-selection, tournament, battle, finished
-        this.playerTrainer = null;
-        this.opponentTrainer = null;
-        this.playerTeam = [];
-        this.opponentTeam = [];
-        this.currentRound = 0;
-        this.playerScore = 0;
-        this.opponentScore = 0;
-        this.roundResults = [];
+        this.gameState = 'trainer-setup'; // trainer-setup, dashboard, battle
+        this.trainerName = '';
+        this.starterPokemon = null;
+        this.totalWins = 0;
+        this.gymBadges = 0;
         this.currentBattle = null;
         
-        // Available Pokemon list
-        this.availablePokemonList = [
-            'pikachu', 'charizard', 'blastoise', 'venusaur', 'alakazam', 'machamp',
-            'gengar', 'dragonite', 'mewtwo', 'mew', 'typhlosion', 'feraligatr', 
-            'meganium', 'lugia', 'ho-oh', 'celebi', 'blaziken', 'swampert', 
-            'sceptile', 'rayquaza', 'garchomp', 'lucario', 'dialga', 'palkia', 
-            'giratina', 'arceus', 'squirtle', 'bulbasaur', 'charmander', 'eevee', 
-            'snorlax', 'lapras', 'gyarados', 'scyther', 'electabuzz', 'magmar',
-            'jolteon', 'vaporeon', 'flareon', 'espeon', 'umbreon', 'leafeon', 
-            'glaceon', 'sylveon', 'riolu', 'gible', 'gabite', 'rotom', 'darkrai'
+        // Basic starter Pokemon for beginners
+        this.starterPokemonList = [
+            'pikachu', 'bulbasaur', 'charmander', 'squirtle', 'machop',
+            'geodude', 'psyduck', 'poliwag', 'abra', 'slowpoke',
+            'magikarp', 'eevee', 'meowth', 'oddish', 'bellsprout',
+            'tentacool', 'ponyta', 'magnemite', 'seel', 'grimer'
         ];
         
-        // Opponent trainer teams
-        this.opponentTeams = {
-            ash: ['pikachu', 'charizard', 'snorlax', 'lapras'],
-            gary: ['blastoise', 'alakazam', 'machamp', 'gengar'],
-            misty: ['gyarados', 'vaporeon', 'lapras', 'blastoise'],
-            brock: ['onix', 'graveler', 'machamp', 'crobat'],
-            lance: ['dragonite', 'charizard', 'gyarados', 'aerodactyl'],
-            cynthia: ['garchomp', 'lucario', 'dialga', 'rayquaza']
+        // Practice battle opponents
+        this.practiceOpponents = [
+            'youngster joey', 'lass sarah', 'bug catcher tim', 'picnicker lisa',
+            'hiker mike', 'fisherman bob', 'sailor jack', 'camper alex'
+        ];
+        
+        // Gym leaders with their Pokemon teams
+        this.gymLeaders = {
+            brock: {
+                name: 'Brock',
+                badgeLevel: 1,
+                pokemon: ['onix', 'geodude'],
+                badge: 'Boulder Badge'
+            },
+            misty: {
+                name: 'Misty',
+                badgeLevel: 1,
+                pokemon: ['staryu', 'starmie'],
+                badge: 'Cascade Badge'
+            },
+            surge: {
+                name: 'Lt. Surge',
+                badgeLevel: 5,
+                pokemon: ['voltorb', 'pikachu', 'raichu'],
+                badge: 'Thunder Badge'
+            },
+            erika: {
+                name: 'Erika',
+                badgeLevel: 5,
+                pokemon: ['victreebel', 'tangela', 'vileplume'],
+                badge: 'Rainbow Badge'
+            },
+            sabrina: {
+                name: 'Sabrina',
+                badgeLevel: 10,
+                pokemon: ['kadabra', 'mr-mime', 'venomoth', 'alakazam'],
+                badge: 'Marsh Badge'
+            },
+            blaine: {
+                name: 'Blaine',
+                badgeLevel: 10,
+                pokemon: ['growlithe', 'ponyta', 'rapidash', 'arcanine'],
+                badge: 'Volcano Badge'
+            }
         };
         
-        this.opponentNames = {
-            ash: 'Ash Ketchum',
-            gary: 'Gary Oak',
-            misty: 'Misty',
-            brock: 'Brock',
-            lance: 'Lance',
-            cynthia: 'Cynthia'
-        };
-        
+        this.initializeGame();
+    }
+    
+    initializeGame() {
+        this.populateStarterDropdown();
         this.initializeEventListeners();
-        this.populateTeamSelectionDropdowns();
+        this.loadGameData();
+    }
+    
+    populateStarterDropdown() {
+        const select = document.getElementById('starter-pokemon');
+        const sortedPokemon = [...this.starterPokemonList].sort();
+        
+        select.innerHTML = '<option value="">Select your Pokemon...</option>';
+        
+        sortedPokemon.forEach(pokemon => {
+            const option = document.createElement('option');
+            option.value = pokemon;
+            option.textContent = this.capitalize(pokemon);
+            select.appendChild(option);
+        });
     }
     
     initializeEventListeners() {
         // Trainer setup
         document.getElementById('trainer-name').addEventListener('input', () => {
-            this.checkTrainerSetupComplete();
+            this.checkSetupComplete();
         });
         
-        document.getElementById('opponent-select').addEventListener('change', () => {
-            this.checkTrainerSetupComplete();
+        document.getElementById('starter-pokemon').addEventListener('change', () => {
+            this.checkSetupComplete();
         });
         
-        document.getElementById('continue-to-team-btn').addEventListener('click', () => {
-            this.setupTrainerProfiles();
+        document.getElementById('start-journey-btn').addEventListener('click', () => {
+            this.startJourney();
         });
         
-        // Team selection
-        document.querySelectorAll('.pokemon-team-select').forEach(select => {
-            select.addEventListener('change', (e) => {
-                this.updatePlayerTeam(e.target);
-            });
+        // Dashboard battles
+        document.getElementById('practice-battle-btn').addEventListener('click', () => {
+            this.startPracticeBattle();
         });
         
-        document.getElementById('start-tournament-btn').addEventListener('click', () => {
-            this.startTournament();
+        document.getElementById('gym-challenge-btn').addEventListener('click', () => {
+            this.startGymChallenge();
         });
         
         // Battle controls
@@ -79,188 +115,46 @@ class PokemonTournamentGame {
             this.playerAttack();
         });
         
-        document.getElementById('restart-btn').addEventListener('click', () => {
-            this.restartGame();
+        document.getElementById('back-to-dashboard-btn').addEventListener('click', () => {
+            this.backToDashboard();
         });
-    }
-    
-    populateTeamSelectionDropdowns() {
-        const selects = document.querySelectorAll('.pokemon-team-select');
-        const sortedPokemon = [...this.availablePokemonList].sort();
         
-        selects.forEach(select => {
-            // Clear existing options except the first one
-            select.innerHTML = '<option value="">Choose Pokemon...</option>';
-            
-            sortedPokemon.forEach(pokemon => {
-                const option = document.createElement('option');
-                option.value = pokemon;
-                option.textContent = this.capitalize(pokemon);
-                select.appendChild(option);
-            });
+        // Victory modal
+        document.getElementById('continue-btn').addEventListener('click', () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('victory-modal'));
+            modal.hide();
+            this.backToDashboard();
         });
     }
     
-    checkTrainerSetupComplete() {
+    checkSetupComplete() {
         const trainerName = document.getElementById('trainer-name').value.trim();
-        const opponentSelect = document.getElementById('opponent-select').value;
-        const continueBtn = document.getElementById('continue-to-team-btn');
+        const starterPokemon = document.getElementById('starter-pokemon').value;
+        const startBtn = document.getElementById('start-journey-btn');
         
-        if (trainerName && opponentSelect) {
-            continueBtn.disabled = false;
+        if (trainerName && starterPokemon) {
+            startBtn.disabled = false;
         } else {
-            continueBtn.disabled = true;
+            startBtn.disabled = true;
         }
     }
     
-    setupTrainerProfiles() {
+    async startJourney() {
         const trainerName = document.getElementById('trainer-name').value.trim();
-        const opponentKey = document.getElementById('opponent-select').value;
+        const starterPokemonName = document.getElementById('starter-pokemon').value;
         
-        this.playerTrainer = trainerName;
-        this.opponentTrainer = this.opponentNames[opponentKey];
-        
-        // Update UI
-        document.getElementById('player-trainer-name').textContent = trainerName;
-        document.getElementById('opponent-trainer-name').textContent = this.opponentTrainer;
-        
-        // Setup opponent team
-        this.opponentTeam = [...this.opponentTeams[opponentKey]];
-        this.displayOpponentTeam();
-        
-        // Show team selection
-        document.getElementById('trainer-setup-section').classList.add('d-none');
-        document.getElementById('team-selection-section').classList.remove('d-none');
-        
-        this.gameState = 'team-selection';
-    }
-    
-    async displayOpponentTeam() {
-        const display = document.getElementById('opponent-team-display');
-        display.innerHTML = '<p class="text-center">Loading opponent team...</p>';
-        
-        try {
-            const teamHTML = await Promise.all(
-                this.opponentTeam.map(async (pokemonName) => {
-                    try {
-                        const pokemon = await this.fetchPokemonBasicInfo(pokemonName);
-                        return `
-                            <div class="team-pokemon-item">
-                                <img src="${pokemon.image}" alt="${pokemon.name}">
-                                <div class="pokemon-name">${this.capitalize(pokemon.name)}</div>
-                            </div>
-                        `;
-                    } catch (error) {
-                        return `
-                            <div class="team-pokemon-item">
-                                <div class="pokemon-name">${this.capitalize(pokemonName)}</div>
-                                <small class="text-muted">Image unavailable</small>
-                            </div>
-                        `;
-                    }
-                })
-            );
-            
-            display.innerHTML = teamHTML.join('');
-        } catch (error) {
-            display.innerHTML = '<p class="text-danger">Error loading opponent team</p>';
-        }
-    }
-    
-    async updatePlayerTeam(selectElement) {
-        const slot = parseInt(selectElement.dataset.slot);
-        const pokemonName = selectElement.value;
-        
-        if (pokemonName) {
-            // Check for duplicates
-            const currentTeam = this.getPlayerTeamSelections();
-            const duplicateIndex = currentTeam.findIndex((name, index) => name === pokemonName && index !== slot);
-            
-            if (duplicateIndex !== -1) {
-                this.showError(`${this.capitalize(pokemonName)} is already in your team!`);
-                selectElement.value = '';
-                return;
-            }
-        }
-        
-        await this.updatePlayerTeamDisplay();
-        this.checkTeamSelectionComplete();
-    }
-    
-    getPlayerTeamSelections() {
-        const selects = document.querySelectorAll('.pokemon-team-select');
-        return Array.from(selects).map(select => select.value);
-    }
-    
-    async updatePlayerTeamDisplay() {
-        const display = document.getElementById('player-team-display');
-        const selections = this.getPlayerTeamSelections();
-        
-        const teamHTML = await Promise.all(
-            selections.map(async (pokemonName, index) => {
-                if (!pokemonName) {
-                    return `
-                        <div class="team-pokemon-item">
-                            <div style="width: 60px; height: 60px; background: #f3f4f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                <i class="fas fa-plus text-muted"></i>
-                            </div>
-                            <div class="pokemon-name">Slot ${index + 1}</div>
-                        </div>
-                    `;
-                }
-                
-                try {
-                    const pokemon = await this.fetchPokemonBasicInfo(pokemonName);
-                    return `
-                        <div class="team-pokemon-item">
-                            <img src="${pokemon.image}" alt="${pokemon.name}">
-                            <div class="pokemon-name">${this.capitalize(pokemon.name)}</div>
-                        </div>
-                    `;
-                } catch (error) {
-                    return `
-                        <div class="team-pokemon-item">
-                            <div class="pokemon-name">${this.capitalize(pokemonName)}</div>
-                            <small class="text-muted">Image unavailable</small>
-                        </div>
-                    `;
-                }
-            })
-        );
-        
-        display.innerHTML = teamHTML.join('');
-    }
-    
-    checkTeamSelectionComplete() {
-        const selections = this.getPlayerTeamSelections();
-        const isComplete = selections.every(selection => selection !== '');
-        
-        document.getElementById('start-tournament-btn').disabled = !isComplete;
-    }
-    
-    async startTournament() {
         this.showLoading(true);
         
         try {
-            // Fetch full data for all Pokemon
-            const playerSelections = this.getPlayerTeamSelections();
-            this.playerTeam = await Promise.all(
-                playerSelections.map(name => this.fetchPokemon(name))
-            );
+            // Fetch starter Pokemon data
+            this.starterPokemon = await this.fetchPokemon(starterPokemonName);
+            this.trainerName = trainerName;
             
-            this.opponentTeam = await Promise.all(
-                this.opponentTeam.map(name => this.fetchPokemon(name))
-            );
+            // Save game data
+            this.saveGameData();
             
-            // Initialize tournament
-            this.currentRound = 0;
-            this.playerScore = 0;
-            this.opponentScore = 0;
-            this.roundResults = [];
-            
-            // Setup UI
-            this.setupTournamentUI();
-            this.startNextRound();
+            // Show dashboard
+            this.showDashboard();
             
         } catch (error) {
             this.showError('Failed to load Pokemon data. Please try again.');
@@ -268,94 +162,143 @@ class PokemonTournamentGame {
         }
     }
     
-    setupTournamentUI() {
+    showDashboard() {
         this.showLoading(false);
-        document.getElementById('team-selection-section').classList.add('d-none');
-        document.getElementById('battle-arena').classList.remove('d-none');
+        document.getElementById('trainer-setup-section').classList.add('d-none');
+        document.getElementById('trainer-dashboard').classList.remove('d-none');
         
-        // Update names in battle UI
-        document.getElementById('battle-player-name').textContent = this.playerTrainer;
-        document.getElementById('battle-opponent-name').textContent = this.opponentTrainer;
-        document.getElementById('player-score-name').textContent = this.playerTrainer;
-        document.getElementById('opponent-score-name').textContent = this.opponentTrainer;
-        
-        // Initialize round indicators
-        this.updateRoundIndicators();
-        
-        this.gameState = 'tournament';
+        // Update dashboard
+        this.updateDashboard();
+        this.gameState = 'dashboard';
     }
     
-    startNextRound() {
-        if (this.currentRound >= 4) {
-            this.endTournament();
-            return;
+    updateDashboard() {
+        document.getElementById('trainer-name-display').textContent = this.trainerName;
+        document.getElementById('total-wins').textContent = this.totalWins;
+        document.getElementById('gym-badges').textContent = this.gymBadges;
+        document.getElementById('current-pokemon-name').textContent = this.capitalize(this.starterPokemon.name);
+        
+        // Update gym challenge availability
+        const winsNeeded = this.getWinsNeededForNextGym();
+        const gymBtn = document.getElementById('gym-challenge-btn');
+        const winsRequiredSpan = document.getElementById('wins-required');
+        
+        if (winsNeeded <= this.totalWins) {
+            gymBtn.disabled = false;
+            winsRequiredSpan.textContent = 'Ready!';
+            winsRequiredSpan.className = 'text-success fw-bold';
+        } else {
+            gymBtn.disabled = true;
+            winsRequiredSpan.textContent = `${winsNeeded} wins needed`;
+            winsRequiredSpan.className = 'text-muted';
         }
+    }
+    
+    getWinsNeededForNextGym() {
+        if (this.gymBadges === 0) return 15; // First gym requires 15 wins
+        if (this.gymBadges < 2) return 15;   // Basic level gyms (1-2 badges)
+        if (this.gymBadges < 4) return 30;   // Mid level gyms (3-4 badges) 
+        return 50; // Final level gyms (5+ badges)
+    }
+    
+    async startPracticeBattle() {
+        this.showLoading(true);
         
-        this.currentRound++;
+        try {
+            // Select random practice opponent
+            const opponentName = this.practiceOpponents[Math.floor(Math.random() * this.practiceOpponents.length)];
+            const opponentPokemonName = this.starterPokemonList[Math.floor(Math.random() * this.starterPokemonList.length)];
+            const opponentPokemon = await this.fetchPokemon(opponentPokemonName);
+            
+            // Setup battle
+            this.currentBattle = {
+                type: 'practice',
+                opponent: opponentName,
+                opponentBadgeLevel: 'Beginner',
+                playerPokemon: { ...this.starterPokemon },
+                opponentPokemon: opponentPokemon,
+                currentTurn: 'player'
+            };
+            
+            // Reset HP
+            this.currentBattle.playerPokemon.currentHP = this.currentBattle.playerPokemon.maxHP;
+            this.currentBattle.opponentPokemon.currentHP = this.currentBattle.opponentPokemon.maxHP;
+            
+            this.showBattleArena();
+            
+        } catch (error) {
+            this.showError('Failed to start practice battle. Please try again.');
+            this.showLoading(false);
+        }
+    }
+    
+    async startGymChallenge() {
+        this.showLoading(true);
         
-        // Select Pokemon for this round
-        const playerPokemon = { ...this.playerTeam[this.currentRound - 1] };
-        const opponentPokemon = { ...this.opponentTeam[this.currentRound - 1] };
+        try {
+            // Get appropriate gym leader based on current badges
+            const gymLeader = this.getNextGymLeader();
+            const opponentPokemonName = gymLeader.pokemon[Math.floor(Math.random() * gymLeader.pokemon.length)];
+            const opponentPokemon = await this.fetchPokemon(opponentPokemonName);
+            
+            // Setup gym battle
+            this.currentBattle = {
+                type: 'gym',
+                opponent: gymLeader.name,
+                opponentBadgeLevel: `${gymLeader.badgeLevel} Star Badge`,
+                badge: gymLeader.badge,
+                playerPokemon: { ...this.starterPokemon },
+                opponentPokemon: opponentPokemon,
+                currentTurn: 'player'
+            };
+            
+            // Reset HP
+            this.currentBattle.playerPokemon.currentHP = this.currentBattle.playerPokemon.maxHP;
+            this.currentBattle.opponentPokemon.currentHP = this.currentBattle.opponentPokemon.maxHP;
+            
+            this.showBattleArena();
+            
+        } catch (error) {
+            this.showError('Failed to start gym challenge. Please try again.');
+            this.showLoading(false);
+        }
+    }
+    
+    getNextGymLeader() {
+        const gymLeaderKeys = Object.keys(this.gymLeaders);
         
-        // Reset HP
-        playerPokemon.currentHP = playerPokemon.maxHP;
-        opponentPokemon.currentHP = opponentPokemon.maxHP;
+        // Return gym leader based on current badge count
+        if (this.gymBadges === 0) return this.gymLeaders.brock;
+        if (this.gymBadges === 1) return this.gymLeaders.misty;
+        if (this.gymBadges === 2) return this.gymLeaders.surge;
+        if (this.gymBadges === 3) return this.gymLeaders.erika;
+        if (this.gymBadges === 4) return this.gymLeaders.sabrina;
+        return this.gymLeaders.blaine; // Final gym leader
+    }
+    
+    showBattleArena() {
+        this.showLoading(false);
+        document.getElementById('trainer-dashboard').classList.add('d-none');
+        document.getElementById('battle-arena').classList.remove('d-none');
         
-        this.currentBattle = {
-            player: playerPokemon,
-            opponent: opponentPokemon,
-            currentTurn: 'player'
-        };
+        // Update battle info
+        document.getElementById('battle-type').textContent = this.currentBattle.type === 'gym' ? 'Gym Challenge' : 'Practice Battle';
+        document.getElementById('opponent-name').textContent = this.currentBattle.opponent;
+        document.getElementById('opponent-badge-level').textContent = this.currentBattle.opponentBadgeLevel;
+        document.getElementById('battle-trainer-name').textContent = this.trainerName;
+        document.getElementById('battle-opponent-name').textContent = this.currentBattle.opponent;
         
-        // Update UI
-        this.updateTournamentProgress();
-        this.displayBattlePokemon(playerPokemon, 'player');
-        this.displayBattlePokemon(opponentPokemon, 'computer');
+        // Display Pokemon
+        this.displayBattlePokemon(this.currentBattle.playerPokemon, 'player');
+        this.displayBattlePokemon(this.currentBattle.opponentPokemon, 'opponent');
         
-        // Add log entry
-        this.addLogEntry(`Round ${this.currentRound}: ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
+        // Clear battle log and add initial entry
+        document.getElementById('battle-log').innerHTML = '';
+        this.addLogEntry(`Battle begins! ${this.capitalize(this.currentBattle.playerPokemon.name)} vs ${this.capitalize(this.currentBattle.opponentPokemon.name)}!`, 'system');
         
         // Enable attack button
         document.getElementById('attack-btn').disabled = false;
         this.gameState = 'battle';
-    }
-    
-    updateTournamentProgress() {
-        document.getElementById('current-round').textContent = this.currentRound;
-        document.getElementById('player-score').textContent = this.playerScore;
-        document.getElementById('opponent-score').textContent = this.opponentScore;
-    }
-    
-    updateRoundIndicators() {
-        const container = document.getElementById('round-results');
-        container.innerHTML = '';
-        
-        for (let i = 0; i < 4; i++) {
-            const indicator = document.createElement('div');
-            indicator.className = 'round-indicator';
-            indicator.textContent = i + 1;
-            
-            if (i < this.roundResults.length) {
-                indicator.classList.add(this.roundResults[i] === 'player' ? 'win' : 'loss');
-            } else {
-                indicator.classList.add('pending');
-            }
-            
-            container.appendChild(indicator);
-        }
-    }
-    
-    async fetchPokemonBasicInfo(pokemonName) {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
-        if (!response.ok) {
-            throw new Error(`Pokemon "${pokemonName}" not found!`);
-        }
-        const data = await response.json();
-        
-        return {
-            name: data.name,
-            image: data.sprites.other['official-artwork'].front_default || data.sprites.front_default
-        };
     }
     
     async fetchPokemon(pokemonName) {
@@ -389,20 +332,29 @@ class PokemonTournamentGame {
     }
     
     displayBattlePokemon(pokemon, type) {
-        document.getElementById(`${type}-image`).src = pokemon.image;
-        document.getElementById(`${type}-image`).alt = pokemon.name;
-        document.getElementById(`${type}-name`).textContent = this.capitalize(pokemon.name);
-        document.getElementById(`${type}-current-hp`).textContent = pokemon.currentHP;
-        document.getElementById(`${type}-max-hp`).textContent = pokemon.maxHP;
-        document.getElementById(`${type}-attack`).textContent = pokemon.stats.attack;
-        document.getElementById(`${type}-defense`).textContent = pokemon.stats.defense;
+        const imageId = type === 'player' ? 'player-image' : 'opponent-image';
+        const nameId = type === 'player' ? 'player-name' : 'opponent-pokemon-name';
+        const currentHpId = type === 'player' ? 'player-current-hp' : 'opponent-current-hp';
+        const maxHpId = type === 'player' ? 'player-max-hp' : 'opponent-max-hp';
+        const attackId = type === 'player' ? 'player-attack' : 'opponent-attack';
+        const defenseId = type === 'player' ? 'player-defense' : 'opponent-defense';
+        
+        document.getElementById(imageId).src = pokemon.image;
+        document.getElementById(imageId).alt = pokemon.name;
+        document.getElementById(nameId).textContent = this.capitalize(pokemon.name);
+        document.getElementById(currentHpId).textContent = pokemon.currentHP;
+        document.getElementById(maxHpId).textContent = pokemon.maxHP;
+        document.getElementById(attackId).textContent = pokemon.stats.attack;
+        document.getElementById(defenseId).textContent = pokemon.stats.defense;
         
         this.updateHPBar(pokemon, type);
     }
     
     updateHPBar(pokemon, type) {
         const hpPercentage = (pokemon.currentHP / pokemon.maxHP) * 100;
-        const hpBar = document.getElementById(`${type}-hp-bar`);
+        const hpBarId = type === 'player' ? 'player-hp-bar' : 'opponent-hp-bar';
+        const currentHpId = type === 'player' ? 'player-current-hp' : 'opponent-current-hp';
+        const hpBar = document.getElementById(hpBarId);
         
         hpBar.style.width = `${hpPercentage}%`;
         
@@ -415,7 +367,7 @@ class PokemonTournamentGame {
             hpBar.classList.add('hp-low');
         }
         
-        document.getElementById(`${type}-current-hp`).textContent = pokemon.currentHP;
+        document.getElementById(currentHpId).textContent = pokemon.currentHP;
     }
     
     playerAttack() {
@@ -432,21 +384,21 @@ class PokemonTournamentGame {
         }, 500);
         
         // Calculate damage
-        const damage = this.calculateDamage(this.currentBattle.player, this.currentBattle.opponent);
-        this.currentBattle.opponent.currentHP = Math.max(0, this.currentBattle.opponent.currentHP - damage);
+        const damage = this.calculateDamage(this.currentBattle.playerPokemon, this.currentBattle.opponentPokemon);
+        this.currentBattle.opponentPokemon.currentHP = Math.max(0, this.currentBattle.opponentPokemon.currentHP - damage);
         
         // Update display
-        this.updateHPBar(this.currentBattle.opponent, 'computer');
+        this.updateHPBar(this.currentBattle.opponentPokemon, 'opponent');
         
         // Add to battle log
         this.addLogEntry(
-            `${this.capitalize(this.currentBattle.player.name)} attacks for ${damage} damage!`,
+            `${this.capitalize(this.currentBattle.playerPokemon.name)} attacks for ${damage} damage!`,
             'player-turn'
         );
         
         // Check if opponent Pokemon is defeated
-        if (this.currentBattle.opponent.currentHP <= 0) {
-            this.endRound('player');
+        if (this.currentBattle.opponentPokemon.currentHP <= 0) {
+            this.endBattle('player');
             return;
         }
         
@@ -463,27 +415,27 @@ class PokemonTournamentGame {
         }
         
         // Add attack animation
-        document.getElementById('computer-image').classList.add('attacking');
+        document.getElementById('opponent-image').classList.add('attacking');
         setTimeout(() => {
-            document.getElementById('computer-image').classList.remove('attacking');
+            document.getElementById('opponent-image').classList.remove('attacking');
         }, 500);
         
         // Calculate damage
-        const damage = this.calculateDamage(this.currentBattle.opponent, this.currentBattle.player);
-        this.currentBattle.player.currentHP = Math.max(0, this.currentBattle.player.currentHP - damage);
+        const damage = this.calculateDamage(this.currentBattle.opponentPokemon, this.currentBattle.playerPokemon);
+        this.currentBattle.playerPokemon.currentHP = Math.max(0, this.currentBattle.playerPokemon.currentHP - damage);
         
         // Update display
-        this.updateHPBar(this.currentBattle.player, 'player');
+        this.updateHPBar(this.currentBattle.playerPokemon, 'player');
         
         // Add to battle log
         this.addLogEntry(
-            `${this.capitalize(this.currentBattle.opponent.name)} attacks for ${damage} damage!`,
+            `${this.capitalize(this.currentBattle.opponentPokemon.name)} attacks for ${damage} damage!`,
             'computer-turn'
         );
         
         // Check if player Pokemon is defeated
-        if (this.currentBattle.player.currentHP <= 0) {
-            this.endRound('opponent');
+        if (this.currentBattle.playerPokemon.currentHP <= 0) {
+            this.endBattle('opponent');
             return;
         }
         
@@ -499,92 +451,90 @@ class PokemonTournamentGame {
         return Math.floor(damage * randomMultiplier);
     }
     
-    endRound(winner) {
+    endBattle(winner) {
         document.getElementById('attack-btn').disabled = true;
         
         if (winner === 'player') {
-            this.playerScore += 100;
-            this.roundResults.push('player');
-            this.addLogEntry(`${this.playerTrainer} wins Round ${this.currentRound}! (+100 points)`, 'victory');
+            this.totalWins++;
+            
+            if (this.currentBattle.type === 'gym') {
+                this.gymBadges++;
+                this.addLogEntry(`🏆 Victory! You earned the ${this.currentBattle.badge}!`, 'victory');
+            } else {
+                this.addLogEntry(`🎉 Victory! You gained valuable experience!`, 'victory');
+            }
+            
+            this.saveGameData();
+            
+            // Show victory modal
+            setTimeout(() => {
+                this.showVictoryModal();
+            }, 1000);
+            
         } else {
-            this.opponentScore += 100;
-            this.roundResults.push('opponent');
-            this.addLogEntry(`${this.opponentTrainer} wins Round ${this.currentRound}!`, 'victory');
+            this.addLogEntry(`💔 Defeat! ${this.currentBattle.opponent} wins this battle!`, 'defeat');
+            
+            // Show defeat modal
+            setTimeout(() => {
+                this.showDefeatModal();
+            }, 1000);
         }
-        
-        this.updateTournamentProgress();
-        this.updateRoundIndicators();
-        
-        // Continue to next round after delay
-        setTimeout(() => {
-            this.startNextRound();
-        }, 2000);
     }
     
-    endTournament() {
-        this.gameState = 'finished';
-        
-        let winner, winnerScore;
-        if (this.playerScore > this.opponentScore) {
-            winner = this.playerTrainer;
-            winnerScore = this.playerScore;
-            this.addLogEntry(`🏆 ${this.playerTrainer} wins the tournament! Final Score: ${this.playerScore} - ${this.opponentScore}`, 'victory');
-        } else if (this.opponentScore > this.playerScore) {
-            winner = this.opponentTrainer;
-            winnerScore = this.opponentScore;
-            this.addLogEntry(`${this.opponentTrainer} wins the tournament! Final Score: ${this.opponentScore} - ${this.playerScore}`, 'victory');
-        } else {
-            winner = 'Draw';
-            this.addLogEntry(`Tournament ends in a draw! Final Score: ${this.playerScore} - ${this.opponentScore}`, 'victory');
-        }
-        
-        // Show final results modal
-        setTimeout(() => {
-            this.showTournamentResults(winner, winnerScore);
-        }, 1000);
-    }
-    
-    showTournamentResults(winner, score) {
+    showVictoryModal() {
         const modal = new bootstrap.Modal(document.getElementById('victory-modal'));
         const title = document.getElementById('victory-title');
         const content = document.getElementById('victory-content');
         
-        if (winner === this.playerTrainer) {
-            title.innerHTML = '<i class="fas fa-trophy text-warning"></i> Tournament Victory!';
+        if (this.currentBattle.type === 'gym') {
+            title.innerHTML = '<i class="fas fa-trophy text-warning"></i> Gym Badge Earned!';
             content.innerHTML = `
-                <h5>Congratulations ${winner}!</h5>
-                <p>You won the tournament with a score of ${score}!</p>
+                <h5>Congratulations, ${this.trainerName}!</h5>
+                <p>You defeated ${this.currentBattle.opponent} and earned the <strong>${this.currentBattle.badge}</strong>!</p>
                 <div class="mt-3">
-                    <h6>Final Results:</h6>
-                    <p>${this.playerTrainer}: ${this.playerScore} points</p>
-                    <p>${this.opponentTrainer}: ${this.opponentScore} points</p>
-                </div>
-            `;
-        } else if (winner === 'Draw') {
-            title.innerHTML = '<i class="fas fa-handshake text-info"></i> Tournament Draw!';
-            content.innerHTML = `
-                <h5>Amazing Tournament!</h5>
-                <p>The tournament ended in a draw!</p>
-                <div class="mt-3">
-                    <h6>Final Results:</h6>
-                    <p>${this.playerTrainer}: ${this.playerScore} points</p>
-                    <p>${this.opponentTrainer}: ${this.opponentScore} points</p>
+                    <p><i class="fas fa-medal text-warning"></i> Gym Badges: ${this.gymBadges}</p>
+                    <p><i class="fas fa-trophy text-success"></i> Total Wins: ${this.totalWins}</p>
                 </div>
             `;
         } else {
-            title.innerHTML = '<i class="fas fa-medal text-secondary"></i> Tournament Complete!';
+            title.innerHTML = '<i class="fas fa-star text-success"></i> Victory!';
             content.innerHTML = `
-                <h5>Great effort ${this.playerTrainer}!</h5>
-                <p>${winner} won the tournament with ${score} points!</p>
+                <h5>Great job, ${this.trainerName}!</h5>
+                <p>You defeated ${this.currentBattle.opponent} in practice battle!</p>
                 <div class="mt-3">
-                    <h6>Final Results:</h6>
-                    <p>${this.playerTrainer}: ${this.playerScore} points</p>
-                    <p>${this.opponentTrainer}: ${this.opponentScore} points</p>
+                    <p><i class="fas fa-trophy text-success"></i> Total Wins: ${this.totalWins}</p>
+                    <p>Keep practicing to unlock gym challenges!</p>
                 </div>
             `;
         }
         
         modal.show();
+    }
+    
+    showDefeatModal() {
+        const modal = new bootstrap.Modal(document.getElementById('victory-modal'));
+        const title = document.getElementById('victory-title');
+        const content = document.getElementById('victory-content');
+        
+        title.innerHTML = '<i class="fas fa-heart-broken text-danger"></i> Defeat';
+        content.innerHTML = `
+            <h5>Don't give up, ${this.trainerName}!</h5>
+            <p>${this.currentBattle.opponent} was stronger this time, but you can try again!</p>
+            <div class="mt-3">
+                <p>Keep practicing to become a better trainer!</p>
+            </div>
+        `;
+        
+        modal.show();
+    }
+    
+    backToDashboard() {
+        document.getElementById('battle-arena').classList.add('d-none');
+        document.getElementById('trainer-dashboard').classList.remove('d-none');
+        
+        this.updateDashboard();
+        this.currentBattle = null;
+        this.gameState = 'dashboard';
     }
     
     addLogEntry(message, type = '') {
@@ -597,41 +547,32 @@ class PokemonTournamentGame {
         battleLog.scrollTop = battleLog.scrollHeight;
     }
     
-    restartGame() {
-        // Reset all game state
-        this.gameState = 'trainer-setup';
-        this.playerTrainer = null;
-        this.opponentTrainer = null;
-        this.playerTeam = [];
-        this.opponentTeam = [];
-        this.currentRound = 0;
-        this.playerScore = 0;
-        this.opponentScore = 0;
-        this.roundResults = [];
-        this.currentBattle = null;
+    saveGameData() {
+        const gameData = {
+            trainerName: this.trainerName,
+            starterPokemon: this.starterPokemon,
+            totalWins: this.totalWins,
+            gymBadges: this.gymBadges
+        };
         
-        // Reset UI
-        document.getElementById('trainer-name').value = '';
-        document.getElementById('opponent-select').value = '';
-        document.getElementById('continue-to-team-btn').disabled = true;
-        document.getElementById('start-tournament-btn').disabled = true;
+        localStorage.setItem('pokemonGymBattleGame', JSON.stringify(gameData));
+    }
+    
+    loadGameData() {
+        const savedData = localStorage.getItem('pokemonGymBattleGame');
         
-        // Reset team selections
-        document.querySelectorAll('.pokemon-team-select').forEach(select => {
-            select.value = '';
-        });
-        
-        // Show initial section
-        document.getElementById('trainer-setup-section').classList.remove('d-none');
-        document.getElementById('team-selection-section').classList.add('d-none');
-        document.getElementById('battle-arena').classList.add('d-none');
-        document.getElementById('battle-log').innerHTML = '';
-        
-        this.hideError();
-        this.showLoading(false);
-        
-        // Focus on trainer name input
-        document.getElementById('trainer-name').focus();
+        if (savedData) {
+            const gameData = JSON.parse(savedData);
+            this.trainerName = gameData.trainerName || '';
+            this.starterPokemon = gameData.starterPokemon || null;
+            this.totalWins = gameData.totalWins || 0;
+            this.gymBadges = gameData.gymBadges || 0;
+            
+            // If we have saved data, go directly to dashboard
+            if (this.trainerName && this.starterPokemon) {
+                this.showDashboard();
+            }
+        }
     }
     
     showLoading(show) {
@@ -666,5 +607,5 @@ class PokemonTournamentGame {
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new PokemonTournamentGame();
+    new PokemonGymBattleGame();
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon Battle Simulator</title>
+    <title>Pokemon Gym Battle Simulator</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -13,9 +13,9 @@
         <!-- Header -->
         <header class="text-center py-4">
             <h1 class="display-4 pokemon-title">
-                <i class="fas fa-bolt text-warning"></i>
-                Pokemon Battle Simulator
-                <i class="fas fa-bolt text-warning"></i>
+                <i class="fas fa-medal text-warning"></i>
+                Pokemon Gym Battle Simulator
+                <i class="fas fa-medal text-warning"></i>
             </h1>
         </header>
 
@@ -23,10 +23,10 @@
         <div id="trainer-setup-section" class="row justify-content-center mb-4">
             <div class="col-md-8">
                 <div class="card setup-card">
-                    <div class="card-body">
-                        <h3 class="card-title text-center mb-4">Setup Your Trainer Profile</h3>
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-4">Welcome, New Trainer!</h3>
+                        <p class="mb-4">Enter your name and choose your first Pokemon to begin your gym challenge journey!</p>
                         
-                        <!-- Trainer Name Input -->
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="trainer-name" class="form-label">Your Trainer Name:</label>
@@ -34,22 +34,16 @@
                                        placeholder="Enter your name" maxlength="20">
                             </div>
                             <div class="col-md-6">
-                                <label for="opponent-select" class="form-label">Choose Opponent:</label>
-                                <select id="opponent-select" class="form-select opponent-select">
-                                    <option value="">Select an opponent...</option>
-                                    <option value="ash">Ash Ketchum</option>
-                                    <option value="gary">Gary Oak</option>
-                                    <option value="misty">Misty</option>
-                                    <option value="brock">Brock</option>
-                                    <option value="lance">Lance</option>
-                                    <option value="cynthia">Cynthia</option>
+                                <label for="starter-pokemon" class="form-label">Choose Your Starter Pokemon:</label>
+                                <select id="starter-pokemon" class="form-select pokemon-select">
+                                    <option value="">Select your Pokemon...</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div class="text-center">
-                            <button id="continue-to-team-btn" class="btn btn-success btn-lg" disabled>
-                                <i class="fas fa-arrow-right"></i> Continue to Team Selection
+                            <button id="start-journey-btn" class="btn btn-success btn-lg" disabled>
+                                <i class="fas fa-play"></i> Start Your Journey!
                             </button>
                         </div>
                     </div>
@@ -57,70 +51,70 @@
             </div>
         </div>
 
-        <!-- Team Selection Section -->
-        <div id="team-selection-section" class="d-none">
+        <!-- Trainer Dashboard -->
+        <div id="trainer-dashboard" class="d-none">
+            <!-- Trainer Stats -->
             <div class="row mb-4">
-                <!-- Player Team Selection -->
-                <div class="col-md-6">
-                    <div class="card team-card">
-                        <div class="card-header bg-primary text-white text-center">
-                            <h4><i class="fas fa-user"></i> <span id="player-trainer-name">Your</span> Team</h4>
+                <div class="col-12">
+                    <div class="card trainer-stats-card">
+                        <div class="card-header bg-info text-white text-center">
+                            <h4><i class="fas fa-id-card"></i> Trainer Profile</h4>
                         </div>
                         <div class="card-body">
-                            <p class="text-center mb-3">Choose 4 Pokemon for your team:</p>
-                            
-                            <!-- Pokemon Selection Dropdowns -->
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Pokemon 1:</label>
-                                    <select class="form-select pokemon-team-select" data-slot="0">
-                                        <option value="">Choose Pokemon...</option>
-                                    </select>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h5><span id="trainer-name-display">Trainer</span></h5>
+                                    <small class="text-muted">Trainer Name</small>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Pokemon 2:</label>
-                                    <select class="form-select pokemon-team-select" data-slot="1">
-                                        <option value="">Choose Pokemon...</option>
-                                    </select>
+                                <div class="col-md-3">
+                                    <h5><i class="fas fa-trophy"></i> <span id="total-wins">0</span></h5>
+                                    <small class="text-muted">Total Wins</small>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Pokemon 3:</label>
-                                    <select class="form-select pokemon-team-select" data-slot="2">
-                                        <option value="">Choose Pokemon...</option>
-                                    </select>
+                                <div class="col-md-3">
+                                    <h5><i class="fas fa-star"></i> <span id="gym-badges">0</span></h5>
+                                    <small class="text-muted">Gym Badges</small>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Pokemon 4:</label>
-                                    <select class="form-select pokemon-team-select" data-slot="3">
-                                        <option value="">Choose Pokemon...</option>
-                                    </select>
+                                <div class="col-md-3">
+                                    <h5><span id="current-pokemon-name">Pokemon</span></h5>
+                                    <small class="text-muted">Current Pokemon</small>
                                 </div>
                             </div>
-                            
-                            <!-- Selected Team Display -->
-                            <div id="player-team-display" class="team-display mt-3"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Opponent Team Display -->
-                <div class="col-md-6">
-                    <div class="card team-card">
-                        <div class="card-header bg-danger text-white text-center">
-                            <h4><i class="fas fa-robot"></i> <span id="opponent-trainer-name">Opponent</span> Team</h4>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-center mb-3">Opponent's Pokemon team:</p>
-                            <div id="opponent-team-display" class="team-display"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="text-center mb-4">
-                <button id="start-tournament-btn" class="btn btn-warning btn-lg" disabled>
-                    <i class="fas fa-trophy"></i> Start Tournament Battle!
-                </button>
+
+            <!-- Battle Options -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card battle-option-card">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4><i class="fas fa-fist-raised"></i> Practice Battle</h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <p>Battle against random trainers to gain experience and wins.</p>
+                            <p><strong>Reward:</strong> +1 Win count</p>
+                            <button id="practice-battle-btn" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i> Start Practice Battle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card battle-option-card">
+                        <div class="card-header bg-warning text-dark text-center">
+                            <h4><i class="fas fa-medal"></i> Gym Challenge</h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <p>Challenge gym leaders to earn badges and prestige.</p>
+                            <p><strong>Requirement:</strong> <span id="wins-required">15</span> wins needed</p>
+                            <button id="gym-challenge-btn" class="btn btn-warning btn-lg" disabled>
+                                <i class="fas fa-trophy"></i> Challenge Gym Leader
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -134,40 +128,37 @@
 
         <!-- Battle Arena -->
         <div id="battle-arena" class="d-none">
-            <!-- Tournament Progress -->
+            <!-- Battle Info -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card tournament-progress-card">
-                        <div class="card-header bg-warning text-dark text-center">
-                            <h4><i class="fas fa-trophy"></i> Tournament Progress</h4>
+                    <div class="card battle-info-card">
+                        <div class="card-header bg-dark text-white text-center">
+                            <h4 id="battle-title"><i class="fas fa-swords"></i> Battle Arena</h4>
                         </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-md-3">
-                                    <h5>Round: <span id="current-round">1</span>/4</h5>
+                        <div class="card-body text-center">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6>Battle Type: <span id="battle-type">Practice</span></h6>
                                 </div>
-                                <div class="col-md-3">
-                                    <h5><span id="player-score-name">You</span>: <span id="player-score">0</span></h5>
+                                <div class="col-md-4">
+                                    <h6>Opponent: <span id="opponent-name">Trainer</span></h6>
                                 </div>
-                                <div class="col-md-3">
-                                    <h5><span id="opponent-score-name">Opponent</span>: <span id="opponent-score">0</span></h5>
-                                </div>
-                                <div class="col-md-3">
-                                    <div id="round-results" class="round-indicators"></div>
+                                <div class="col-md-4">
+                                    <h6>Badge Level: <span id="opponent-badge-level">Beginner</span></h6>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Pokemon Display -->
+
+            <!-- Pokemon Battle Display -->
             <div class="row mb-4">
                 <!-- Player Pokemon -->
                 <div class="col-md-6">
                     <div class="card pokemon-card player-card">
                         <div class="card-header bg-primary text-white text-center">
-                            <h4><i class="fas fa-user"></i> <span id="battle-player-name">Your</span> Pokemon</h4>
+                            <h4><i class="fas fa-user"></i> <span id="battle-trainer-name">Your</span> Pokemon</h4>
                         </div>
                         <div class="card-body text-center">
                             <div id="player-pokemon">
@@ -192,28 +183,28 @@
                     </div>
                 </div>
 
-                <!-- Computer Pokemon -->
+                <!-- Opponent Pokemon -->
                 <div class="col-md-6">
-                    <div class="card pokemon-card computer-card">
+                    <div class="card pokemon-card opponent-card">
                         <div class="card-header bg-danger text-white text-center">
                             <h4><i class="fas fa-robot"></i> <span id="battle-opponent-name">Opponent</span> Pokemon</h4>
                         </div>
                         <div class="card-body text-center">
-                            <div id="computer-pokemon">
-                                <img id="computer-image" src="" alt="" class="pokemon-image mb-3">
-                                <h5 id="computer-name" class="pokemon-name"></h5>
+                            <div id="opponent-pokemon">
+                                <img id="opponent-image" src="" alt="" class="pokemon-image mb-3">
+                                <h5 id="opponent-pokemon-name" class="pokemon-name"></h5>
                                 <div class="stats mb-3">
                                     <div class="stat-item">
-                                        <strong>HP:</strong> <span id="computer-current-hp"></span>/<span id="computer-max-hp"></span>
+                                        <strong>HP:</strong> <span id="opponent-current-hp"></span>/<span id="opponent-max-hp"></span>
                                     </div>
                                     <div class="progress hp-bar mb-2">
-                                        <div id="computer-hp-bar" class="progress-bar bg-success" role="progressbar"></div>
+                                        <div id="opponent-hp-bar" class="progress-bar bg-success" role="progressbar"></div>
                                     </div>
                                     <div class="stat-item">
-                                        <strong>Attack:</strong> <span id="computer-attack"></span>
+                                        <strong>Attack:</strong> <span id="opponent-attack"></span>
                                     </div>
                                     <div class="stat-item">
-                                        <strong>Defense:</strong> <span id="computer-defense"></span>
+                                        <strong>Defense:</strong> <span id="opponent-defense"></span>
                                     </div>
                                 </div>
                             </div>
@@ -228,8 +219,8 @@
                     <button id="attack-btn" class="btn btn-warning btn-lg me-3">
                         <i class="fas fa-fist-raised"></i> Attack!
                     </button>
-                    <button id="restart-btn" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-redo"></i> Restart Battle
+                    <button id="back-to-dashboard-btn" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </button>
                 </div>
             </div>
@@ -264,7 +255,7 @@
                     </div>
                     <div class="modal-body text-center">
                         <div id="victory-content"></div>
-                        <button type="button" class="btn btn-primary mt-3" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-primary mt-3" id="continue-btn">
                             Continue
                         </button>
                     </div>

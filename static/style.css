@@ -31,14 +31,15 @@ body {
     box-shadow: var(--card-shadow);
 }
 
-.pokemon-input {
+.pokemon-select {
     border-radius: 10px;
     border: 2px solid var(--pokemon-blue);
     padding: 12px;
     font-size: 16px;
+    background-color: white;
 }
 
-.pokemon-input:focus {
+.pokemon-select:focus {
     border-color: var(--pokemon-yellow);
     box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
 }

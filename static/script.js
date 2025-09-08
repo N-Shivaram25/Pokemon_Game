@@ -8,7 +8,21 @@ class PokemonBattleGame {
         this.currentTurn = 'player';
         this.battleLog = [];
         
-        // Computer Pokemon list for random selection
+        // Available Pokemon list for player selection
+        this.availablePokemonList = [
+            'pikachu', 'charizard', 'blastoise', 'venusaur', 'alakazam', 'machamp',
+            'gengar', 'dragonite', 'mewtwo', 'mew', 'typhlosion',
+            'feraligatr', 'meganium', 'lugia', 'ho-oh', 'celebi',
+            'blaziken', 'swampert', 'sceptile', 'rayquaza', 'garchomp',
+            'lucario', 'dialga', 'palkia', 'giratina', 'arceus',
+            'squirtle', 'bulbasaur', 'charmander', 'eevee', 'snorlax',
+            'lapras', 'gyarados', 'scyther', 'electabuzz', 'magmar',
+            'jolteon', 'vaporeon', 'flareon', 'espeon', 'umbreon',
+            'leafeon', 'glaceon', 'sylveon', 'lucario', 'riolu',
+            'garchomp', 'gible', 'gabite', 'rotom', 'darkrai'
+        ];
+        
+        // Computer Pokemon list for random selection (subset of available)
         this.computerPokemonList = [
             'charizard', 'blastoise', 'venusaur', 'alakazam', 'machamp',
             'gengar', 'dragonite', 'mewtwo', 'mew', 'typhlosion',
@@ -18,6 +32,7 @@ class PokemonBattleGame {
         ];
         
         this.initializeEventListeners();
+        this.populatePokemonDropdown();
     }
     
     initializeEventListeners() {
@@ -26,10 +41,11 @@ class PokemonBattleGame {
             this.startBattle();
         });
         
-        // Enter key in input field
-        document.getElementById('pokemon-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.startBattle();
+        // Pokemon selection change
+        document.getElementById('pokemon-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                // Auto-enable start button when Pokemon is selected
+                document.getElementById('start-battle-btn').disabled = false;
             }
         });
         
@@ -44,11 +60,26 @@ class PokemonBattleGame {
         });
     }
     
+    populatePokemonDropdown() {
+        const select = document.getElementById('pokemon-select');
+        
+        // Sort Pokemon names alphabetically
+        const sortedPokemon = [...this.availablePokemonList].sort();
+        
+        // Add each Pokemon as an option
+        sortedPokemon.forEach(pokemon => {
+            const option = document.createElement('option');
+            option.value = pokemon;
+            option.textContent = this.capitalize(pokemon);
+            select.appendChild(option);
+        });
+    }
+    
     async startBattle() {
-        const playerInput = document.getElementById('pokemon-input').value.trim().toLowerCase();
+        const playerInput = document.getElementById('pokemon-select').value.trim().toLowerCase();
         
         if (!playerInput) {
-            this.showError('Please enter a Pokemon name!');
+            this.showError('Please select a Pokemon!');
             return;
         }
         
@@ -320,15 +351,15 @@ class PokemonBattleGame {
         this.battleLog = [];
         
         // Reset UI
-        document.getElementById('pokemon-input').value = '';
+        document.getElementById('pokemon-select').value = '';
         document.getElementById('setup-section').classList.remove('d-none');
         document.getElementById('battle-arena').classList.add('d-none');
         document.getElementById('battle-log').innerHTML = '';
         this.hideError();
         this.showLoading(false);
         
-        // Focus on input
-        document.getElementById('pokemon-input').focus();
+        // Focus on select
+        document.getElementById('pokemon-select').focus();
     }
     
     showLoading(show) {

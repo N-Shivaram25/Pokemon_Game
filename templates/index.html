@@ -26,13 +26,14 @@
                     <div class="card-body text-center">
                         <h3 class="card-title mb-4">Choose Your Pokemon!</h3>
                         <div class="input-group mb-3">
-                            <input type="text" id="pokemon-input" class="form-control pokemon-input" 
-                                   placeholder="Enter Pokemon name (e.g., pikachu)" autocomplete="off">
+                            <select id="pokemon-select" class="form-select pokemon-select">
+                                <option value="">Choose your Pokemon...</option>
+                            </select>
                             <button id="start-battle-btn" class="btn btn-primary battle-btn">
                                 <i class="fas fa-play"></i> Start Battle!
                             </button>
                         </div>
-                        <small class="text-muted">Enter any Pokemon name to begin your battle adventure!</small>
+                        <small class="text-muted">Select your Pokemon from the list to begin your battle adventure!</small>
                     </div>
                 </div>
             </div>

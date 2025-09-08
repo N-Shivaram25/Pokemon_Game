@@ -770,8 +770,12 @@ class PokemonGymBattleGame {
         // Display active Pokemon
         this.updateBattleDisplay();
         
-        // Clear battle log and add initial entry
+        // Clear battle log and defeated Pokemon area
         document.getElementById('battle-log').innerHTML = '';
+        
+        const defeatedArea = document.getElementById('defeated-pokemon-area');
+        defeatedArea.innerHTML = '<p class="text-muted text-center mb-0" id="no-defeated-text">No Pokemon defeated yet</p>';
+        
         const playerPokemon = this.currentBattle.playerTeam[this.currentBattle.playerActiveIndex];
         const opponentPokemon = this.currentBattle.opponentTeam[this.currentBattle.opponentActiveIndex];
         this.addLogEntry(`${this.currentBattle.playerTeam.length}v${this.currentBattle.opponentTeam.length} Battle begins! ${this.capitalize(playerPokemon.name)} vs ${this.capitalize(opponentPokemon.name)}!`, 'system');
@@ -799,6 +803,9 @@ class PokemonGymBattleGame {
         // Display current active Pokemon
         this.displayBattlePokemon(playerPokemon, 'player');
         this.displayBattlePokemon(opponentPokemon, 'opponent');
+        
+        // Update turn indicator
+        this.updateTurnIndicator();
     }
     
     async fetchPokemon(pokemonName) {
@@ -868,6 +875,45 @@ class PokemonGymBattleGame {
         }
         
         document.getElementById(currentHpId).textContent = pokemon.currentHP;
+    }
+    
+    updateTurnIndicator() {
+        const turnIndicator = document.getElementById('turn-indicator');
+        const turnText = document.getElementById('turn-text');
+        
+        if (!this.currentBattle) return;
+        
+        turnIndicator.classList.remove('player-turn', 'opponent-turn');
+        
+        if (this.currentBattle.currentTurn === 'player') {
+            turnIndicator.classList.add('player-turn');
+            turnText.textContent = `Your Turn!`;
+        } else {
+            turnIndicator.classList.add('opponent-turn');
+            turnText.textContent = `${this.currentBattle.opponent}'s Turn!`;
+        }
+    }
+    
+    addDefeatedPokemon(pokemon, side) {
+        const defeatedArea = document.getElementById('defeated-pokemon-area');
+        const noDefeatedText = document.getElementById('no-defeated-text');
+        
+        // Hide the "no defeated" text if it's visible
+        if (noDefeatedText && !noDefeatedText.classList.contains('d-none')) {
+            noDefeatedText.classList.add('d-none');
+        }
+        
+        // Create defeated Pokemon element
+        const defeatedPokemon = document.createElement('div');
+        defeatedPokemon.className = 'defeated-pokemon';
+        defeatedPokemon.innerHTML = `
+            <img src="${pokemon.image}" alt="${pokemon.name}">
+            <div class="x-symbol">✗</div>
+            <div class="pokemon-name">${this.capitalize(pokemon.name)}</div>
+            <div class="text-muted small">${side === 'player' ? 'Your' : 'Opponent'}</div>
+        `;
+        
+        defeatedArea.appendChild(defeatedPokemon);
     }
     
     playerAttack() {
@@ -967,6 +1013,17 @@ class PokemonGymBattleGame {
         
         this.addLogEntry(`${this.capitalize(defeatedPokemon.name)} is defeated!`, 'system');
         
+        // Add defeat animation
+        const pokemonImageId = defeatedSide === 'player' ? 'player-image' : 'opponent-image';
+        const pokemonImage = document.getElementById(pokemonImageId);
+        pokemonImage.classList.add('defeated');
+        
+        // After animation, move Pokemon to defeated area
+        setTimeout(() => {
+            this.addDefeatedPokemon(defeatedPokemon, defeatedSide);
+            pokemonImage.classList.remove('defeated');
+        }, 1000);
+        
         // Check for next Pokemon
         let nextIndex = -1;
         for (let i = 0; i < defeatedTeam.length; i++) {
@@ -977,34 +1034,38 @@ class PokemonGymBattleGame {
         }
         
         if (nextIndex !== -1) {
-            // Switch to next Pokemon
-            if (defeatedSide === 'player') {
-                this.currentBattle.playerActiveIndex = nextIndex;
-            } else {
-                this.currentBattle.opponentActiveIndex = nextIndex;
-            }
-            
-            const nextPokemon = defeatedTeam[nextIndex];
-            this.addLogEntry(`${defeatedSide === 'player' ? this.trainerName : this.currentBattle.opponent} sends out ${this.capitalize(nextPokemon.name)}!`, 'system');
-            
-            this.updateBattleDisplay();
-            
-            // Continue battle - when switching Pokemon, that side gets the next turn
-            if (defeatedSide === 'opponent') {
-                // Opponent just switched, so opponent gets the turn
-                this.currentBattle.currentTurn = 'opponent';
-                document.getElementById('attack-btn').disabled = true;
-                setTimeout(() => {
-                    this.opponentAttack();
-                }, 2000);
-            } else {
-                // Player just switched, so player gets the turn
-                this.currentBattle.currentTurn = 'player';
-                document.getElementById('attack-btn').disabled = false;
-            }
+            // Switch to next Pokemon after defeat animation
+            setTimeout(() => {
+                if (defeatedSide === 'player') {
+                    this.currentBattle.playerActiveIndex = nextIndex;
+                } else {
+                    this.currentBattle.opponentActiveIndex = nextIndex;
+                }
+                
+                const nextPokemon = defeatedTeam[nextIndex];
+                this.addLogEntry(`${defeatedSide === 'player' ? this.trainerName : this.currentBattle.opponent} sends out ${this.capitalize(nextPokemon.name)}!`, 'system');
+                
+                this.updateBattleDisplay();
+                
+                // Continue battle - when switching Pokemon, that side gets the next turn
+                if (defeatedSide === 'opponent') {
+                    // Opponent just switched, so opponent gets the turn
+                    this.currentBattle.currentTurn = 'opponent';
+                    document.getElementById('attack-btn').disabled = true;
+                    setTimeout(() => {
+                        this.opponentAttack();
+                    }, 2000);
+                } else {
+                    // Player just switched, so player gets the turn
+                    this.currentBattle.currentTurn = 'player';
+                    document.getElementById('attack-btn').disabled = false;
+                }
+            }, 1200);
         } else {
-            // End battle - no more Pokemon
-            this.endBattle(defeatedSide === 'player' ? 'opponent' : 'player');
+            // End battle - no more Pokemon (after defeat animation)
+            setTimeout(() => {
+                this.endBattle(defeatedSide === 'player' ? 'opponent' : 'player');
+            }, 1200);
         }
     }
     

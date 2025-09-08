@@ -20,11 +20,11 @@ class PokemonGymBattleGame {
         
         // Pokemon stages and unlock requirements
         this.stageUnlockRequirements = {
-            1: { winsRequired: 0, winsPerUnlock: 2 },    // Stage 1: Every 2 wins
-            2: { winsRequired: 20, winsPerUnlock: 3 },   // Stage 2: After 20 wins, every 3 wins
-            3: { winsRequired: 35, winsPerUnlock: 3 },   // Stage 3: After 35 wins, every 3 wins  
-            4: { winsRequired: 50, winsPerUnlock: 3 },   // Stage 4: After 50 wins, every 3 wins
-            5: { winsRequired: 70, winsPerUnlock: 3 }    // Stage 5: After 70 wins, every 3 wins
+            1: { winsRequired: 0, winsPerUnlock: 2, maxWins: 20 },    // Stage 1: Every 2 wins until 20 total wins
+            2: { winsRequired: 20, winsPerUnlock: 3, maxWins: 35 },   // Stage 2: After 20 wins, every 3 wins until 35 total
+            3: { winsRequired: 35, winsPerUnlock: 3, maxWins: 50 },   // Stage 3: After 35 wins, every 3 wins until 50 total
+            4: { winsRequired: 50, winsPerUnlock: 3, maxWins: 70 },   // Stage 4: After 50 wins, every 3 wins until 70 total
+            5: { winsRequired: 70, winsPerUnlock: 3, maxWins: 999 }   // Stage 5: After 70 wins, every 3 wins (unlimited)
         };
         
         // Pokemon by stage
@@ -826,30 +826,12 @@ class PokemonGymBattleGame {
     
     async checkForPokemonUnlock() {
         this.updateCurrentStage();
-        const currentStageInfo = this.stageUnlockRequirements[this.currentStage];
         
-        // Check if we should unlock a Pokemon
-        const winsAfterStageStart = Math.max(0, this.totalWins - currentStageInfo.winsRequired);
-        const shouldHavePokemon = Math.floor(winsAfterStageStart / currentStageInfo.winsPerUnlock);
+        // Check if we should unlock a Pokemon from current stage
+        const shouldUnlock = this.shouldUnlockPokemon();
         
-        // Count Pokemon from current stage (excluding starter)
-        const currentStageCount = this.pokemonCollection.filter(p => p.stage === this.currentStage).length;
-        
-        // For stage 1, we need to account for the starter Pokemon (starts with 1 Pokemon)
-        const expectedPokemon = this.currentStage === 1 ? shouldHavePokemon + 1 : shouldHavePokemon;
-        
-        console.log('Pokemon unlock check:', {
-            totalWins: this.totalWins,
-            currentStage: this.currentStage,
-            winsAfterStageStart: winsAfterStageStart,
-            winsPerUnlock: currentStageInfo.winsPerUnlock,
-            shouldHavePokemon: shouldHavePokemon,
-            expectedPokemon: expectedPokemon,
-            currentStageCount: currentStageCount
-        });
-        
-        if (expectedPokemon > currentStageCount) {
-            // Generate new Pokemon from current stage
+        if (shouldUnlock) {
+            const currentStageInfo = this.stageUnlockRequirements[this.currentStage];
             const availablePokemon = this.pokemonByStage[this.currentStage].filter(name => 
                 !this.pokemonCollection.some(p => p.originalName === name)
             );
@@ -873,6 +855,40 @@ class PokemonGymBattleGame {
                 }, 3000);
             }
         }
+    }
+    
+    shouldUnlockPokemon() {
+        const currentStageInfo = this.stageUnlockRequirements[this.currentStage];
+        
+        // Check if we're still within the stage range
+        if (this.totalWins > currentStageInfo.maxWins) {
+            return false; // Should have moved to next stage
+        }
+        
+        // For stage 1, check every 2 wins starting from 2
+        if (this.currentStage === 1) {
+            // First Pokemon is starter, unlock second at 2 wins, third at 4 wins, etc.
+            const expectedPokemonCount = Math.floor(this.totalWins / 2) + 1;
+            const currentStageCount = this.pokemonCollection.filter(p => p.stage === 1).length;
+            return expectedPokemonCount > currentStageCount && this.totalWins >= 2;
+        }
+        
+        // For stages 2+, check every 3 wins after reaching the stage
+        const winsAfterStageStart = this.totalWins - currentStageInfo.winsRequired;
+        if (winsAfterStageStart <= 0) return false;
+        
+        const expectedPokemonCount = Math.floor(winsAfterStageStart / 3);
+        const currentStageCount = this.pokemonCollection.filter(p => p.stage === this.currentStage).length;
+        
+        console.log('Stage unlock check:', {
+            totalWins: this.totalWins,
+            currentStage: this.currentStage,
+            winsAfterStageStart: winsAfterStageStart,
+            expectedPokemonCount: expectedPokemonCount,
+            currentStageCount: currentStageCount
+        });
+        
+        return expectedPokemonCount > currentStageCount && winsAfterStageStart % 3 === 0;
     }
     
     showPokemonUnlockModal() {

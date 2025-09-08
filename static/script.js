@@ -165,6 +165,13 @@ class PokemonGymBattleGame {
             });
         }
         
+        const leavePokemonBtn = document.getElementById('leave-pokemon-btn');
+        if (leavePokemonBtn) {
+            leavePokemonBtn.addEventListener('click', () => {
+                this.leavePokemon();
+            });
+        }
+        
         const skipOpponentBtn = document.getElementById('skip-opponent-btn');
         if (skipOpponentBtn) {
             skipOpponentBtn.addEventListener('click', () => {
@@ -515,6 +522,12 @@ class PokemonGymBattleGame {
     }
     
     confirmBattleStart() {
+        // Validate team sizes are equal
+        if (this.pendingBattle.playerTeam.length !== this.pendingBattle.opponentTeam.length) {
+            this.showError(`Cannot start Match ${this.pendingBattle.playerTeam.length} vs ${this.pendingBattle.opponentTeam.length}! Teams must have equal number of Pokemon.`);
+            return;
+        }
+        
         // Close modal and start battle
         const modal = bootstrap.Modal.getInstance(document.getElementById('opponent-preview-modal'));
         if (modal) modal.hide();
@@ -1236,6 +1249,14 @@ class PokemonGymBattleGame {
             this.pendingPokemonUnlock = null;
             this.saveGameData();
         }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('pokemon-unlock-modal'));
+        if (modal) modal.hide();
+    }
+    
+    leavePokemon() {
+        // Simply clear the pending Pokemon without adding to collection
+        this.pendingPokemonUnlock = null;
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('pokemon-unlock-modal'));
         if (modal) modal.hide();

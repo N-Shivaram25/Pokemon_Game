@@ -178,6 +178,20 @@ class PokemonGymBattleGame {
                 this.confirmBattleStart();
             });
         }
+        
+        const changeTeamBtn = document.getElementById('change-team-btn');
+        if (changeTeamBtn) {
+            changeTeamBtn.addEventListener('click', () => {
+                this.showTeamSelection();
+            });
+        }
+        
+        const confirmTeamBtn = document.getElementById('confirm-team-btn');
+        if (confirmTeamBtn) {
+            confirmTeamBtn.addEventListener('click', () => {
+                this.confirmTeamSelection();
+            });
+        }
     }
     
     checkTrainerNameComplete() {
@@ -462,21 +476,7 @@ class PokemonGymBattleGame {
         document.getElementById('preview-opponent-name').textContent = opponentName;
         
         // Show player team
-        const playerPreview = document.getElementById('player-team-preview');
-        playerPreview.innerHTML = '';
-        playerTeam.forEach(pokemon => {
-            const div = document.createElement('div');
-            div.className = 'preview-pokemon';
-            div.innerHTML = `
-                <img src="${pokemon.image}" alt="${pokemon.name}">
-                <div class="preview-pokemon-info">
-                    <div class="preview-pokemon-name">${this.capitalize(pokemon.name)}</div>
-                    <div class="preview-pokemon-stage">Stage ${pokemon.stage}</div>
-                    <div class="preview-pokemon-hp">HP: ${pokemon.maxHP}</div>
-                </div>
-            `;
-            playerPreview.appendChild(div);
-        });
+        this.updatePlayerTeamPreview();
         
         // Show opponent team (Pokemon visible but stats hidden until battle starts)
         const opponentPreview = document.getElementById('opponent-team-preview');
@@ -519,6 +519,76 @@ class PokemonGymBattleGame {
         if (modal) modal.hide();
         
         this.startBattle();
+    }
+    
+    showTeamSelection() {
+        document.getElementById('player-team-preview').classList.add('d-none');
+        document.getElementById('team-selection-preview').classList.remove('d-none');
+        
+        const container = document.getElementById('preview-team-selection');
+        container.innerHTML = '';
+        
+        this.pokemonCollection.forEach((pokemon, index) => {
+            const checkbox = document.createElement('div');
+            checkbox.className = 'team-pokemon-checkbox mb-2';
+            
+            const isSelected = this.battleTeam.some(p => p.name === pokemon.name);
+            
+            checkbox.innerHTML = `
+                <input type="checkbox" id="preview-pokemon-${index}" ${isSelected ? 'checked' : ''} 
+                       ${this.battleTeam.length >= 3 && !isSelected ? 'disabled' : ''}>
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+                <span>${this.capitalize(pokemon.name)}</span>
+                <span class="stage-indicator stage-${pokemon.stage}">S${pokemon.stage}</span>
+            `;
+            
+            container.appendChild(checkbox);
+        });
+    }
+    
+    confirmTeamSelection() {
+        // Update battle team based on selections
+        const newBattleTeam = [];
+        const checkboxes = document.querySelectorAll('#preview-team-selection input[type="checkbox"]');
+        
+        checkboxes.forEach((checkbox, index) => {
+            if (checkbox.checked) {
+                newBattleTeam.push(this.pokemonCollection[index]);
+            }
+        });
+        
+        if (newBattleTeam.length === 0) {
+            alert('Please select at least one Pokemon for battle!');
+            return;
+        }
+        
+        this.battleTeam = newBattleTeam;
+        this.saveGameData();
+        
+        // Hide team selection and update preview
+        document.getElementById('team-selection-preview').classList.add('d-none');
+        document.getElementById('player-team-preview').classList.remove('d-none');
+        
+        // Update player team preview with new team
+        this.updatePlayerTeamPreview();
+    }
+    
+    updatePlayerTeamPreview() {
+        const playerPreview = document.getElementById('player-team-preview');
+        playerPreview.innerHTML = '';
+        this.battleTeam.forEach(pokemon => {
+            const div = document.createElement('div');
+            div.className = 'preview-pokemon';
+            div.innerHTML = `
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+                <div class="preview-pokemon-info">
+                    <div class="preview-pokemon-name">${this.capitalize(pokemon.name)}</div>
+                    <div class="preview-pokemon-stage">Stage ${pokemon.stage}</div>
+                    <div class="preview-pokemon-hp">HP: ${pokemon.maxHP}</div>
+                </div>
+            `;
+            playerPreview.appendChild(div);
+        });
     }
     
     async startBattle() {

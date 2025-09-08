@@ -101,9 +101,10 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label for="battle-team-select" class="form-label">Battle Team (Max 3):</label>
-                                    <div id="battle-team-selection">
-                                        <!-- Team selection checkboxes will be added here -->
+                                    <div id="battle-team-selection" class="drag-drop-team-container">
+                                        <!-- Drag and drop team ordering will be added here -->
                                     </div>
+                                    <small class="text-muted">Drag to reorder</small>
                                 </div>
                             </div>
                         </div>
@@ -357,12 +358,21 @@
                                     <!-- Player team will be shown here -->
                                 </div>
                                 <div id="team-selection-preview" class="d-none mt-3">
-                                    <h6>Select your battle team:</h6>
-                                    <div id="preview-team-selection">
-                                        <!-- Team selection will be shown here -->
+                                    <h6>Drag Pokemon to reorder your battle team:</h6>
+                                    <div class="battle-order-info mb-2">
+                                        <small class="text-muted">1st Pokemon fights first, 2nd enters when 1st is defeated, etc.</small>
+                                    </div>
+                                    <div id="preview-team-selection" class="drag-drop-area">
+                                        <!-- Drag and drop team selection will be shown here -->
+                                    </div>
+                                    <div class="available-pokemon-area mt-3">
+                                        <h6>Available Pokemon:</h6>
+                                        <div id="available-pokemon-list" class="drag-drop-area">
+                                            <!-- Available Pokemon will be shown here -->
+                                        </div>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-success mt-2" id="confirm-team-btn">
-                                        <i class="fas fa-check"></i> Confirm Team
+                                        <i class="fas fa-check"></i> Confirm Team Order
                                     </button>
                                 </div>
                             </div>

@@ -629,3 +629,162 @@ body {
     background-color: #d1d5db;
     color: #6b7280;
 }
+
+/* Drag and Drop Styling */
+.drag-drop-team-container {
+    min-height: 120px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    background: rgba(243, 244, 246, 0.8);
+    transition: all 0.3s ease;
+}
+
+.drag-drop-team-container.drag-over {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+.drag-drop-area {
+    min-height: 100px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: rgba(243, 244, 246, 0.8);
+    transition: all 0.3s ease;
+}
+
+.drag-drop-area.drag-over {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.pokemon-card-draggable {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: white;
+    cursor: grab;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pokemon-card-draggable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-color: #007bff;
+}
+
+.pokemon-card-draggable.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+    cursor: grabbing;
+}
+
+.pokemon-card-draggable img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    border: 2px solid #eee;
+    object-fit: contain;
+}
+
+.pokemon-card-info {
+    flex: 1;
+    text-align: left;
+}
+
+.pokemon-card-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 2px;
+    color: var(--pokemon-purple);
+    text-transform: capitalize;
+}
+
+.pokemon-card-stage {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.pokemon-card-hp {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 500;
+}
+
+.battle-position-indicator {
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 28px;
+}
+
+.available-pokemon-area {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.drop-zone-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-style: italic;
+    min-height: 60px;
+}
+
+/* Enhanced Collection Grid with Card Style */
+.pokemon-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.collection-pokemon-item {
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    padding: 20px;
+    background: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.collection-pokemon-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border-color: #007bff;
+}
+
+.collection-pokemon-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.collection-pokemon-item .pokemon-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.collection-pokemon-item .pokemon-wins {
+    font-size: 14px;
+    margin-bottom: 8px;
+}

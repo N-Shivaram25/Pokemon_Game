@@ -788,3 +788,26 @@ body {
     font-size: 14px;
     margin-bottom: 8px;
 }
+
+.pokemon-card-stats {
+    text-align: left;
+    font-size: 12px;
+    color: #666;
+}
+
+.pokemon-card-attack, .pokemon-card-defense {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+.empty-slot {
+    border: 2px dashed #ccc !important;
+    background: rgba(243, 244, 246, 0.5) !important;
+    opacity: 0.7;
+}
+
+.empty-slot:hover {
+    border-color: #007bff !important;
+    background: rgba(0, 123, 255, 0.1) !important;
+}

@@ -358,27 +358,28 @@ class PokemonGymBattleGame {
         const container = document.getElementById('battle-team-selection');
         container.innerHTML = '';
         
-        this.pokemonCollection.forEach((pokemon, index) => {
-            const checkbox = document.createElement('div');
-            checkbox.className = 'team-pokemon-checkbox';
-            
-            const isSelected = this.battleTeam.some(p => p.name === pokemon.name);
-            
-            checkbox.innerHTML = `
-                <input type="checkbox" id="team-pokemon-${index}" ${isSelected ? 'checked' : ''} 
-                       ${this.battleTeam.length >= 3 && !isSelected ? 'disabled' : ''}>
-                <img src="${pokemon.image}" alt="${pokemon.name}">
-                <span>${this.capitalize(pokemon.name)}</span>
-                <span class="stage-indicator stage-${pokemon.stage}">S${pokemon.stage}</span>
-            `;
-            
-            const checkboxInput = checkbox.querySelector('input');
-            checkboxInput.addEventListener('change', () => {
-                this.updateBattleTeam(index, checkboxInput.checked);
-            });
-            
-            container.appendChild(checkbox);
+        // Show current battle team with position indicators
+        this.battleTeam.forEach((pokemon, index) => {
+            const card = this.createDraggablePokemonCard(pokemon, index + 1);
+            card.dataset.source = 'team';
+            card.dataset.originalIndex = index;
+            container.appendChild(card);
         });
+        
+        // Add empty slots for remaining team positions
+        for (let i = this.battleTeam.length; i < 3; i++) {
+            const emptySlot = document.createElement('div');
+            emptySlot.className = 'pokemon-card-draggable empty-slot';
+            emptySlot.innerHTML = `
+                <div class="battle-position-indicator">${i + 1}</div>
+                <div class="pokemon-card-info">
+                    <div class="drop-zone-empty">Drop Pokemon here</div>
+                </div>
+            `;
+            container.appendChild(emptySlot);
+        }
+        
+        this.setupDragAndDrop();
     }
     
     updateBattleTeam(pokemonIndex, isSelected) {
@@ -525,44 +526,54 @@ class PokemonGymBattleGame {
         document.getElementById('player-team-preview').classList.add('d-none');
         document.getElementById('team-selection-preview').classList.remove('d-none');
         
-        const container = document.getElementById('preview-team-selection');
-        container.innerHTML = '';
+        // Show current battle team with drag-and-drop reordering
+        const teamContainer = document.getElementById('preview-team-selection');
+        teamContainer.innerHTML = '';
         
-        this.pokemonCollection.forEach((pokemon, index) => {
-            const checkbox = document.createElement('div');
-            checkbox.className = 'team-pokemon-checkbox mb-2';
-            
-            const isSelected = this.battleTeam.some(p => p.name === pokemon.name);
-            
-            checkbox.innerHTML = `
-                <input type="checkbox" id="preview-pokemon-${index}" ${isSelected ? 'checked' : ''} 
-                       ${this.battleTeam.length >= 3 && !isSelected ? 'disabled' : ''}>
-                <img src="${pokemon.image}" alt="${pokemon.name}">
-                <span>${this.capitalize(pokemon.name)}</span>
-                <span class="stage-indicator stage-${pokemon.stage}">S${pokemon.stage}</span>
-            `;
-            
-            container.appendChild(checkbox);
+        this.battleTeam.forEach((pokemon, index) => {
+            const card = this.createDraggablePokemonCard(pokemon, index + 1);
+            card.dataset.source = 'team';
+            card.dataset.originalIndex = index;
+            teamContainer.appendChild(card);
         });
+        
+        // Add empty slots
+        for (let i = this.battleTeam.length; i < 3; i++) {
+            const emptySlot = document.createElement('div');
+            emptySlot.className = 'pokemon-card-draggable empty-slot';
+            emptySlot.innerHTML = `
+                <div class="battle-position-indicator">${i + 1}</div>
+                <div class="pokemon-card-info">
+                    <div class="drop-zone-empty">Drop Pokemon here</div>
+                </div>
+            `;
+            teamContainer.appendChild(emptySlot);
+        }
+        
+        // Show available Pokemon
+        const availableContainer = document.getElementById('available-pokemon-list');
+        availableContainer.innerHTML = '';
+        
+        const availablePokemon = this.pokemonCollection.filter(p => 
+            !this.battleTeam.some(tp => tp.name === p.name)
+        );
+        
+        availablePokemon.forEach(pokemon => {
+            const card = this.createDraggablePokemonCard(pokemon);
+            card.dataset.source = 'available';
+            availableContainer.appendChild(card);
+        });
+        
+        this.setupPreviewDragAndDrop();
     }
     
     confirmTeamSelection() {
-        // Update battle team based on selections
-        const newBattleTeam = [];
-        const checkboxes = document.querySelectorAll('#preview-team-selection input[type="checkbox"]');
-        
-        checkboxes.forEach((checkbox, index) => {
-            if (checkbox.checked) {
-                newBattleTeam.push(this.pokemonCollection[index]);
-            }
-        });
-        
-        if (newBattleTeam.length === 0) {
+        // The team has already been updated through drag and drop
+        if (this.battleTeam.length === 0) {
             alert('Please select at least one Pokemon for battle!');
             return;
         }
         
-        this.battleTeam = newBattleTeam;
         this.saveGameData();
         
         // Hide team selection and update preview
@@ -589,6 +600,138 @@ class PokemonGymBattleGame {
             `;
             playerPreview.appendChild(div);
         });
+    }
+    
+    createDraggablePokemonCard(pokemon, position = null) {
+        const card = document.createElement('div');
+        card.className = 'pokemon-card-draggable';
+        card.draggable = true;
+        card.dataset.pokemonName = pokemon.name;
+        
+        card.innerHTML = `
+            ${position ? `<div class="battle-position-indicator">${position}</div>` : ''}
+            <img src="${pokemon.image}" alt="${pokemon.name}">
+            <div class="pokemon-card-info">
+                <div class="pokemon-card-name">${this.capitalize(pokemon.name)}</div>
+                <div class="pokemon-card-stage">Stage ${pokemon.stage}</div>
+                <div class="pokemon-card-hp">HP: ${pokemon.maxHP}</div>
+            </div>
+        `;
+        
+        // Add drag event listeners
+        card.addEventListener('dragstart', (e) => {
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', pokemon.name);
+            e.dataTransfer.setData('application/json', JSON.stringify({
+                pokemon: pokemon,
+                source: card.dataset.source,
+                originalIndex: card.dataset.originalIndex
+            }));
+        });
+        
+        card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+        });
+        
+        return card;
+    }
+    
+    setupDragAndDrop() {
+        const container = document.getElementById('battle-team-selection');
+        this.setupDropZone(container);
+    }
+    
+    setupPreviewDragAndDrop() {
+        const teamContainer = document.getElementById('preview-team-selection');
+        const availableContainer = document.getElementById('available-pokemon-list');
+        
+        this.setupDropZone(teamContainer);
+        this.setupDropZone(availableContainer);
+    }
+    
+    setupDropZone(container) {
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            container.classList.add('drag-over');
+        });
+        
+        container.addEventListener('dragleave', (e) => {
+            if (!container.contains(e.relatedTarget)) {
+                container.classList.remove('drag-over');
+            }
+        });
+        
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            container.classList.remove('drag-over');
+            
+            try {
+                const dragData = JSON.parse(e.dataTransfer.getData('application/json'));
+                this.handleDrop(dragData, container);
+            } catch (error) {
+                console.error('Drop failed:', error);
+            }
+        });
+    }
+    
+    handleDrop(dragData, dropContainer) {
+        const { pokemon, source, originalIndex } = dragData;
+        const isTeamContainer = dropContainer.id === 'battle-team-selection' || dropContainer.id === 'preview-team-selection';
+        const isAvailableContainer = dropContainer.id === 'available-pokemon-list';
+        
+        if (source === 'team' && isAvailableContainer) {
+            // Remove from team
+            this.battleTeam = this.battleTeam.filter(p => p.name !== pokemon.name);
+        } else if (source === 'available' && isTeamContainer) {
+            // Add to team if space available
+            if (this.battleTeam.length < 3) {
+                this.battleTeam.push(pokemon);
+            } else {
+                alert('Maximum team size is 3 Pokemon!');
+                return;
+            }
+        } else if (source === 'team' && isTeamContainer) {
+            // Reorder within team
+            const currentIndex = this.battleTeam.findIndex(p => p.name === pokemon.name);
+            if (currentIndex !== -1) {
+                // Calculate drop position based on mouse position or container structure
+                const dropPosition = this.getDropPosition(dropContainer, event);
+                if (dropPosition !== currentIndex) {
+                    // Remove from current position
+                    this.battleTeam.splice(currentIndex, 1);
+                    // Insert at new position
+                    this.battleTeam.splice(dropPosition, 0, pokemon);
+                }
+            }
+        }
+        
+        // Update displays
+        this.updateBattleTeamSelection();
+        this.updateBattleAvailability();
+        this.saveGameData();
+        
+        // If in preview mode, update preview displays
+        if (document.getElementById('team-selection-preview').classList.contains('d-none') === false) {
+            this.showTeamSelection();
+        }
+    }
+    
+    getDropPosition(container, event) {
+        const cards = Array.from(container.querySelectorAll('.pokemon-card-draggable:not(.dragging):not(.empty-slot)'));
+        let dropPosition = cards.length;
+        
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const rect = card.getBoundingClientRect();
+            const cardCenter = rect.top + rect.height / 2;
+            
+            if (event.clientY < cardCenter) {
+                dropPosition = i;
+                break;
+            }
+        }
+        
+        return Math.min(dropPosition, 2); // Max 3 Pokemon
     }
     
     async startBattle() {

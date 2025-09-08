@@ -36,6 +36,38 @@ class PokemonGymBattleGame {
             5: ['dragonite', 'mewtwo', 'mew', 'lugia', 'ho-oh', 'celebi', 'kyogre', 'groudon', 'rayquaza', 'dialga', 'palkia', 'giratina', 'arceus', 'reshiram', 'zekrom', 'kyurem', 'xerneas', 'yveltal', 'zygarde', 'necrozma']
         };
         
+        // Pokemon evolution mappings
+        this.evolutionMappings = {
+            'pikachu': 'raichu',
+            'bulbasaur': 'ivysaur',
+            'charmander': 'charmeleon',
+            'squirtle': 'wartortle',
+            'machop': 'machoke',
+            'geodude': 'graveler',
+            'psyduck': 'golduck',
+            'poliwag': 'poliwhirl',
+            'abra': 'kadabra',
+            'slowpoke': 'slowbro',
+            'magikarp': 'gyarados',
+            'meowth': 'persian',
+            'oddish': 'gloom',
+            'bellsprout': 'weepinbell',
+            'tentacool': 'tentacruel',
+            'ponyta': 'rapidash',
+            'magnemite': 'magneton',
+            'seel': 'dewgong',
+            'grimer': 'muk',
+            'ivysaur': 'venusaur',
+            'charmeleon': 'charizard',
+            'wartortle': 'blastoise',
+            'machoke': 'machamp',
+            'graveler': 'golem',
+            'poliwhirl': 'poliwrath',
+            'kadabra': 'alakazam',
+            'weepinbell': 'victreebel',
+            'gloom': 'vileplume'
+        };
+        
         // Practice battle opponents
         this.practiceOpponents = [
             'youngster joey', 'lass sarah', 'bug catcher tim', 'picnicker lisa',
@@ -816,6 +848,9 @@ class PokemonGymBattleGame {
         // Display active Pokemon
         this.updateBattleDisplay();
         
+        // Update turn indicator
+        this.updateTurnIndicator();
+        
         // Clear battle log and both defeated Pokemon areas
         document.getElementById('battle-log').innerHTML = '';
         
@@ -1013,6 +1048,7 @@ class PokemonGymBattleGame {
         
         // Switch to opponent turn
         this.currentBattle.currentTurn = 'opponent';
+        this.updateTurnIndicator();
         setTimeout(() => {
             this.opponentAttack();
         }, 1500);
@@ -1053,6 +1089,7 @@ class PokemonGymBattleGame {
         
         // Switch back to player turn
         this.currentBattle.currentTurn = 'player';
+        this.updateTurnIndicator();
         document.getElementById('attack-btn').disabled = false;
     }
     
@@ -1101,6 +1138,7 @@ class PokemonGymBattleGame {
                 if (defeatedSide === 'opponent') {
                     // Opponent just switched, so opponent gets the turn
                     this.currentBattle.currentTurn = 'opponent';
+                    this.updateTurnIndicator();
                     document.getElementById('attack-btn').disabled = true;
                     setTimeout(() => {
                         this.opponentAttack();
@@ -1108,6 +1146,7 @@ class PokemonGymBattleGame {
                 } else {
                     // Player just switched, so player gets the turn
                     this.currentBattle.currentTurn = 'player';
+                    this.updateTurnIndicator();
                     document.getElementById('attack-btn').disabled = false;
                 }
             }, 1200);
@@ -1139,11 +1178,16 @@ class PokemonGymBattleGame {
                 this.gymBadges++;
             }
             
-            // Update Pokemon wins for battle team
+            // Update Pokemon wins for battle team and check for evolutions
             this.battleTeam.forEach(battlePokemon => {
                 const collectionIndex = this.pokemonCollection.findIndex(p => p.name === battlePokemon.name);
                 if (collectionIndex !== -1) {
                     this.pokemonCollection[collectionIndex].wins++;
+                    
+                    // Check if this Pokemon should evolve (15 wins)
+                    if (this.pokemonCollection[collectionIndex].wins >= 15) {
+                        this.checkPokemonEvolution(collectionIndex);
+                    }
                 }
             });
             
@@ -1245,6 +1289,93 @@ class PokemonGymBattleGame {
         });
         
         return expectedPokemonCount > currentStageCount && winsAfterStageStart % 3 === 0;
+    }
+    
+    async checkPokemonEvolution(pokemonIndex) {
+        const pokemon = this.pokemonCollection[pokemonIndex];
+        
+        // Check if this Pokemon can evolve
+        const evolutionName = this.evolutionMappings[pokemon.name];
+        if (!evolutionName) {
+            return; // This Pokemon doesn't have an evolution
+        }
+        
+        // Check if we haven't already evolved this Pokemon
+        if (pokemon.hasEvolved) {
+            return; // Already evolved
+        }
+        
+        try {
+            console.log(`${pokemon.name} is evolving into ${evolutionName}!`);
+            
+            // Fetch the evolved Pokemon data
+            const evolvedPokemon = await this.fetchPokemon(evolutionName);
+            
+            // Update the Pokemon in collection
+            this.pokemonCollection[pokemonIndex] = {
+                ...evolvedPokemon,
+                stage: pokemon.stage + 1,
+                wins: pokemon.wins,
+                originalName: pokemon.originalName || pokemon.name,
+                hasEvolved: true
+            };
+            
+            // Update in battle team if present
+            const battleTeamIndex = this.battleTeam.findIndex(p => p.name === pokemon.name);
+            if (battleTeamIndex !== -1) {
+                this.battleTeam[battleTeamIndex] = {
+                    ...this.pokemonCollection[pokemonIndex]
+                };
+            }
+            
+            // Save the updated data
+            this.saveGameData();
+            
+            // Update displays
+            this.updatePokemonCollection();
+            this.updateBattleTeamSelection();
+            this.updateBattleAvailability();
+            
+            // Show evolution notification
+            this.showEvolutionModal(pokemon.name, evolutionName);
+            
+        } catch (error) {
+            console.error('Evolution failed:', error);
+        }
+    }
+    
+    showEvolutionModal(fromName, toName) {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">
+                            <i class="fas fa-star"></i> Pokemon Evolution!
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center">
+                        <h4>🎉 ${this.capitalize(fromName)} evolved into ${this.capitalize(toName)}! 🎉</h4>
+                        <p class="text-muted mt-3">Your Pokemon has grown stronger!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                            <i class="fas fa-check"></i> Amazing!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Remove modal after hiding
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
     }
     
     showPokemonUnlockModal() {

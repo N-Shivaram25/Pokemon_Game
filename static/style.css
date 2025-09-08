@@ -344,6 +344,80 @@ body {
     box-shadow: var(--card-shadow);
 }
 
+/* Pokemon Collection Styles */
+.pokemon-collection-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.pokemon-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    min-height: 120px;
+    padding: 15px;
+    background: rgba(243, 244, 246, 0.8);
+    border-radius: 10px;
+}
+
+.collection-pokemon-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.collection-pokemon-item:hover {
+    transform: translateY(-5px);
+}
+
+.collection-pokemon-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.collection-pokemon-item .pokemon-name {
+    font-weight: bold;
+    color: var(--pokemon-purple);
+    text-transform: capitalize;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.collection-pokemon-item .pokemon-wins {
+    font-size: 12px;
+    color: var(--pokemon-blue);
+    margin-bottom: 5px;
+}
+
+.collection-pokemon-item .evolution-progress {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.collection-pokemon-item .evolution-bar {
+    height: 100%;
+    background: linear-gradient(45deg, var(--pokemon-yellow), var(--pokemon-green));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.evolved-pokemon {
+    border: 2px solid var(--pokemon-yellow);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(16, 185, 129, 0.1));
+}
+
 /* Team Selection Styles */
 .team-card {
     background: rgba(255, 255, 255, 0.95);

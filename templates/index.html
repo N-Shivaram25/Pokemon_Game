@@ -21,29 +21,44 @@
 
         <!-- Trainer Setup Section -->
         <div id="trainer-setup-section" class="row justify-content-center mb-4">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <div class="card setup-card">
                     <div class="card-body text-center">
-                        <h3 class="card-title mb-4">Welcome, New Trainer!</h3>
-                        <p class="mb-4">Enter your name and choose your first Pokemon to begin your gym challenge journey!</p>
+                        <h3 class="card-title mb-4">Hey Pokemon Trainer!</h3>
                         
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="trainer-name" class="form-label">Your Trainer Name:</label>
-                                <input type="text" id="trainer-name" class="form-control trainer-input" 
-                                       placeholder="Enter your name" maxlength="20">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="starter-pokemon" class="form-label">Choose Your Starter Pokemon:</label>
-                                <select id="starter-pokemon" class="form-select pokemon-select">
-                                    <option value="">Select your Pokemon...</option>
-                                </select>
-                            </div>
+                        <div class="mb-4">
+                            <label for="trainer-name" class="form-label">Enter Your Name:</label>
+                            <input type="text" id="trainer-name" class="form-control trainer-input" 
+                                   placeholder="Enter your name" maxlength="20">
                         </div>
                         
                         <div class="text-center">
                             <button id="start-journey-btn" class="btn btn-success btn-lg" disabled>
                                 <i class="fas fa-play"></i> Start Your Journey!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pokemon Selection Section -->
+        <div id="pokemon-selection-section" class="row justify-content-center mb-4 d-none">
+            <div class="col-md-6">
+                <div class="card setup-card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-4">Choose Your First Pokemon!</h3>
+                        
+                        <div class="mb-4">
+                            <label for="starter-pokemon" class="form-label">Select Your Pokemon:</label>
+                            <select id="starter-pokemon" class="form-select pokemon-select">
+                                <option value="">Select your Pokemon...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="confirm-pokemon-btn" class="btn btn-primary btn-lg" disabled>
+                                <i class="fas fa-check"></i> Confirm Selection
                             </button>
                         </div>
                     </div>
@@ -62,22 +77,44 @@
                         </div>
                         <div class="card-body">
                             <div class="row text-center">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <h5><span id="trainer-name-display">Trainer</span></h5>
                                     <small class="text-muted">Trainer Name</small>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <h5><i class="fas fa-trophy"></i> <span id="total-wins">0</span></h5>
                                     <small class="text-muted">Total Wins</small>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <h5><i class="fas fa-star"></i> <span id="gym-badges">0</span></h5>
                                     <small class="text-muted">Gym Badges</small>
                                 </div>
                                 <div class="col-md-3">
-                                    <h5><span id="current-pokemon-name">Pokemon</span></h5>
-                                    <small class="text-muted">Current Pokemon</small>
+                                    <h5><i class="fas fa-paw"></i> <span id="pokemon-collection-count">1</span></h5>
+                                    <small class="text-muted">Pokemon Collection</small>
                                 </div>
+                                <div class="col-md-3">
+                                    <label for="current-pokemon-select" class="form-label">Active Pokemon:</label>
+                                    <select id="current-pokemon-select" class="form-select form-select-sm">
+                                        <option value="">Select Pokemon...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pokemon Collection -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card pokemon-collection-card">
+                        <div class="card-header bg-secondary text-white text-center">
+                            <h5><i class="fas fa-box"></i> Your Pokemon Collection</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="pokemon-collection-display" class="pokemon-collection-grid">
+                                <!-- Pokemon collection will be displayed here -->
                             </div>
                         </div>
                     </div>
@@ -92,11 +129,12 @@
                             <h4><i class="fas fa-fist-raised"></i> Practice Battle</h4>
                         </div>
                         <div class="card-body text-center">
-                            <p>Battle against random trainers to gain experience and wins.</p>
-                            <p><strong>Reward:</strong> +1 Win count</p>
-                            <button id="practice-battle-btn" class="btn btn-primary btn-lg">
+                            <p>Battle against random trainers to gain experience.</p>
+                            <p><strong>Rewards:</strong> +1 Win • Random Pokemon after 2 wins</p>
+                            <button id="practice-battle-btn" class="btn btn-primary btn-lg" disabled>
                                 <i class="fas fa-play"></i> Start Practice Battle
                             </button>
+                            <small class="text-muted d-block mt-2">Select an active Pokemon first!</small>
                         </div>
                     </div>
                 </div>
@@ -107,11 +145,12 @@
                             <h4><i class="fas fa-medal"></i> Gym Challenge</h4>
                         </div>
                         <div class="card-body text-center">
-                            <p>Challenge gym leaders to earn badges and prestige.</p>
-                            <p><strong>Requirement:</strong> <span id="wins-required">15</span> wins needed</p>
+                            <p>Challenge gym leaders to earn badges!</p>
+                            <p><strong>Requirement:</strong> <span id="gym-requirement-text">5 wins & 2+ Pokemon</span></p>
                             <button id="gym-challenge-btn" class="btn btn-warning btn-lg" disabled>
                                 <i class="fas fa-trophy"></i> Challenge Gym Leader
                             </button>
+                            <small id="gym-status-text" class="text-muted d-block mt-2">Requirements not met</small>
                         </div>
                     </div>
                 </div>

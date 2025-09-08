@@ -1,0 +1,301 @@
+/* Pokemon Battle Simulator Styles */
+:root {
+    --pokemon-blue: #3b82f6;
+    --pokemon-red: #ef4444;
+    --pokemon-yellow: #fbbf24;
+    --pokemon-green: #10b981;
+    --pokemon-purple: #8b5cf6;
+    --battle-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background: var(--battle-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: #2d3748;
+}
+
+.pokemon-title {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+}
+
+/* Setup Card */
+.setup-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.pokemon-input {
+    border-radius: 10px;
+    border: 2px solid var(--pokemon-blue);
+    padding: 12px;
+    font-size: 16px;
+}
+
+.pokemon-input:focus {
+    border-color: var(--pokemon-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+}
+
+.battle-btn {
+    background: linear-gradient(45deg, var(--pokemon-blue), var(--pokemon-purple));
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.battle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+/* Pokemon Cards */
+.pokemon-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+}
+
+.pokemon-card:hover {
+    transform: translateY(-5px);
+}
+
+.player-card .card-header {
+    background: linear-gradient(45deg, var(--pokemon-blue), #1e40af) !important;
+}
+
+.computer-card .card-header {
+    background: linear-gradient(45deg, var(--pokemon-red), #dc2626) !important;
+}
+
+.pokemon-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.pokemon-image:hover {
+    transform: scale(1.1);
+}
+
+.pokemon-name {
+    color: var(--pokemon-purple);
+    font-weight: bold;
+    text-transform: capitalize;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats */
+.stats {
+    background: rgba(243, 244, 246, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.stat-item {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.hp-bar {
+    height: 10px;
+    border-radius: 5px;
+    background-color: rgba(220, 38, 38, 0.2);
+}
+
+.hp-bar .progress-bar {
+    transition: width 0.5s ease;
+    border-radius: 5px;
+}
+
+/* Battle Controls */
+#attack-btn {
+    background: linear-gradient(45deg, var(--pokemon-yellow), #f59e0b);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#attack-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+}
+
+#attack-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#restart-btn {
+    background: linear-gradient(45deg, #6b7280, #4b5563);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+#restart-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(45deg, #4b5563, #374151);
+}
+
+/* Battle Log */
+.battle-log-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.battle-log {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(249, 250, 251, 0.8);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+}
+
+.log-entry {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    animation: fadeIn 0.5s ease;
+}
+
+.log-entry.player-turn {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 4px solid var(--pokemon-blue);
+}
+
+.log-entry.computer-turn {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--pokemon-red);
+}
+
+.log-entry.system {
+    background: rgba(107, 114, 128, 0.1);
+    border-left: 4px solid #6b7280;
+    font-weight: bold;
+}
+
+.log-entry.victory {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid var(--pokemon-green);
+    font-weight: bold;
+}
+
+/* Victory Modal */
+.victory-modal .modal-content {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Loading Section */
+#loading-section {
+    color: white;
+    font-size: 18px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Error Messages */
+.alert-danger {
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pokemon-image.attacking {
+    animation: pulse 0.5s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pokemon-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .pokemon-title {
+        font-size: 2rem;
+    }
+    
+    #attack-btn, #restart-btn {
+        font-size: 16px;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+    }
+    
+    .stats {
+        padding: 10px;
+    }
+    
+    .stat-item {
+        font-size: 14px;
+    }
+}
+
+/* HP Color Changes */
+.hp-bar .progress-bar.hp-high {
+    background-color: var(--pokemon-green) !important;
+}
+
+.hp-bar .progress-bar.hp-medium {
+    background-color: var(--pokemon-yellow) !important;
+}
+
+.hp-bar .progress-bar.hp-low {
+    background-color: var(--pokemon-red) !important;
+}

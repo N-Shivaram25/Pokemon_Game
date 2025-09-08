@@ -1251,9 +1251,15 @@ class PokemonGymBattleGame {
     
     claimNewPokemon() {
         if (this.pendingPokemonUnlock) {
+            // Add Pokemon to collection
             this.pokemonCollection.push(this.pendingPokemonUnlock);
             this.pendingPokemonUnlock = null;
             this.saveGameData();
+            
+            // Update displays immediately
+            this.updateDashboard();
+            this.updateBattleTeamSelection();
+            this.updateBattleAvailability();
         }
         
         const modal = bootstrap.Modal.getInstance(document.getElementById('pokemon-unlock-modal'));

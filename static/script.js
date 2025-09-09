@@ -319,7 +319,7 @@ class PokemonGymBattleGame {
         document.getElementById('practice-losses').textContent = this.practiceLosses;
         document.getElementById('gym-wins').textContent = this.gymWins;
         document.getElementById('gym-losses').textContent = this.gymLosses;
-        document.getElementById('gym-badges').textContent = this.gymBadges;
+        this.updateGymBadgesDisplay();
         document.getElementById('pokemon-collection-count').textContent = this.pokemonCollection.length;
         
         // Update battle availability
@@ -1317,6 +1317,48 @@ class PokemonGymBattleGame {
         return expectedPokemonCount > currentStageCount && winsAfterStageStart % 3 === 0;
     }
     
+    checkStageUnlockNotification(pokemonStage) {
+        if (pokemonStage === 2) {
+            this.showStageUnlockModal(2, 'Your Pokemon has reached Stage 2! More powerful Stage 2 Pokemon will now appear in your collection every 3 wins!');
+        } else if (pokemonStage === 3) {
+            this.showStageUnlockModal(3, 'Amazing! Your Pokemon has reached Stage 3! Elite Stage 3 Pokemon will now appear in your collection every 3 wins!');
+        }
+    }
+    
+    showStageUnlockModal(stage, message) {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-star"></i> Stage ${stage} Pokemon Unlocked!
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center">
+                        <h4>🎉 ${message} 🎉</h4>
+                        <p class="text-muted mt-3">Keep battling to discover more powerful Pokemon!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" data-bs-dismiss="modal">
+                            <i class="fas fa-check"></i> Awesome!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Remove modal after hiding
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
+    }
+    
     async checkPokemonEvolution(pokemonIndex) {
         const pokemon = this.pokemonCollection[pokemonIndex];
         
@@ -1364,6 +1406,9 @@ class PokemonGymBattleGame {
             
             // Show evolution notification
             this.showEvolutionModal(pokemon.name, evolutionName);
+            
+            // Check if this unlocks stage 2 or 3 Pokemon collection cards
+            this.checkStageUnlockNotification(this.pokemonCollection[pokemonIndex].stage);
             
         } catch (error) {
             console.error('Evolution failed:', error);
@@ -1468,6 +1513,27 @@ class PokemonGymBattleGame {
             });
         } catch (error) {
             console.log('Sound playback failed for', pokemonName);
+        }
+    }
+    
+    updateGymBadgesDisplay() {
+        const container = document.getElementById('gym-badges-display');
+        container.innerHTML = '';
+        
+        const badgeNames = ['boulder', 'cascade', 'thunder', 'rainbow', 'soul', 'marsh', 'volcano', 'earth'];
+        const badgeSymbols = ['🗿', '💧', '⚡', '🌈', '👻', '🧠', '🔥', '🌍'];
+        
+        for (let i = 0; i < this.gymBadges && i < badgeNames.length; i++) {
+            const badge = document.createElement('div');
+            badge.className = `gym-badge ${badgeNames[i]}`;
+            badge.innerHTML = `<div class="gym-badge-content">${badgeSymbols[i]}</div>`;
+            badge.title = `${badgeNames[i].charAt(0).toUpperCase() + badgeNames[i].slice(1)} Badge`;
+            container.appendChild(badge);
+        }
+        
+        // Show badge count text
+        if (this.gymBadges === 0) {
+            container.innerHTML = '<span class="text-muted">No badges yet</span>';
         }
     }
     

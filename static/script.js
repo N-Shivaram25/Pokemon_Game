@@ -1184,8 +1184,16 @@ class PokemonGymBattleGame {
                 if (collectionIndex !== -1) {
                     this.pokemonCollection[collectionIndex].wins++;
                     
-                    // Check if this Pokemon should evolve (15 wins)
-                    if (this.pokemonCollection[collectionIndex].wins >= 15) {
+                    // Check if this Pokemon should evolve (different thresholds by stage)
+                    const pokemon = this.pokemonCollection[collectionIndex];
+                    let evolutionThreshold = 15; // Default for stage 1
+                    if (pokemon.stage === 2) {
+                        evolutionThreshold = 10; // Stage 2 evolves after 10 wins
+                    } else if (pokemon.stage === 3) {
+                        evolutionThreshold = 20; // Stage 3 evolves after 20 wins
+                    }
+                    
+                    if (pokemon.wins >= evolutionThreshold) {
                         this.checkPokemonEvolution(collectionIndex);
                     }
                 }

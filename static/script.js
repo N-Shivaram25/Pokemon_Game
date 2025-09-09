@@ -856,6 +856,9 @@ class PokemonGymBattleGame {
         // Display active Pokemon
         this.updateBattleDisplay();
         
+        // Add hover tooltips for Pokemon
+        this.setupBattlePokemonTooltips();
+        
         // Update turn indicator
         this.updateTurnIndicator();
         
@@ -948,6 +951,11 @@ class PokemonGymBattleGame {
         document.getElementById(defenseId).textContent = pokemon.stats.defense;
         
         this.updateHPBar(pokemon, type);
+        
+        // Update tooltip data if in battle
+        if (this.gameState === 'battle') {
+            this.setupBattlePokemonTooltips();
+        }
     }
     
     updateHPBar(pokemon, type) {
@@ -1394,6 +1402,73 @@ class PokemonGymBattleGame {
         modal.addEventListener('hidden.bs.modal', () => {
             modal.remove();
         });
+    }
+    
+    setupBattlePokemonTooltips() {
+        const playerPokemon = this.currentBattle?.playerTeam?.[this.currentBattle.playerActiveIndex];
+        const opponentPokemon = this.currentBattle?.opponentTeam?.[this.currentBattle.opponentActiveIndex];
+        
+        if (playerPokemon) {
+            this.addPokemonTooltip('player-image', playerPokemon);
+        }
+        if (opponentPokemon) {
+            this.addPokemonTooltip('opponent-image', opponentPokemon);
+        }
+    }
+    
+    addPokemonTooltip(imageId, pokemon) {
+        const image = document.getElementById(imageId);
+        if (!image) return;
+        
+        // Remove existing tooltip
+        const existingTooltip = image.parentNode.querySelector('.pokemon-tooltip');
+        if (existingTooltip) {
+            existingTooltip.remove();
+        }
+        
+        // Create tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'pokemon-tooltip';
+        tooltip.innerHTML = `
+            <div class="tooltip-content">
+                <div class="pokemon-types">
+                    ${pokemon.types?.map(type => `<span class="type-badge type-${type}">${this.capitalize(type)}</span>`).join('') || ''}
+                </div>
+                <div class="pokemon-moves">
+                    <strong>Moves:</strong>
+                    <ul>
+                        ${pokemon.moves?.slice(0, 4).map(move => `<li>${this.capitalize(move)}</li>`).join('') || '<li>No moves data</li>'}
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        image.parentNode.style.position = 'relative';
+        image.parentNode.appendChild(tooltip);
+        
+        // Add event listeners
+        image.addEventListener('mouseenter', () => {
+            tooltip.style.display = 'block';
+            // Play Pokemon cry sound
+            this.playPokemonSound(pokemon.name);
+        });
+        
+        image.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+    }
+    
+    playPokemonSound(pokemonName) {
+        try {
+            const audio = new Audio(`https://veekun.com/dex/media/pokemon/cries/${pokemonName}.ogg`);
+            audio.volume = 0.3; // Lower volume
+            audio.play().catch(error => {
+                // Fallback: try a different format or ignore
+                console.log('Pokemon sound not available for', pokemonName);
+            });
+        } catch (error) {
+            console.log('Sound playback failed for', pokemonName);
+        }
     }
     
     showPokemonUnlockModal() {

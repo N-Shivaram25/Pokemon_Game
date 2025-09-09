@@ -449,16 +449,24 @@ class PokemonGymBattleGame {
             const opponentName = this.practiceOpponents[Math.floor(Math.random() * this.practiceOpponents.length)];
             const opponentTeam = [];
             
-            // Generate opponent Pokemon of similar or slightly lower stage
-            for (let i = 0; i < this.battleTeam.length; i++) {
-                const playerMaxStage = Math.max(...this.battleTeam.map(p => p.stage));
-                const opponentStage = Math.max(1, playerMaxStage - Math.floor(Math.random() * 2));
-                const availablePokemon = this.pokemonByStage[opponentStage];
-                const randomPokemon = availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
-                
-                const pokemon = await this.fetchPokemon(randomPokemon);
-                pokemon.stage = opponentStage;
-                opponentTeam.push(pokemon);
+            // Generate opponent Pokemon matching player team stage distribution
+            const playerStages = this.battleTeam.map(p => p.stage);
+            const stageDistribution = {};
+            playerStages.forEach(stage => {
+                stageDistribution[stage] = (stageDistribution[stage] || 0) + 1;
+            });
+            
+            // Generate opponent team with similar stage distribution
+            for (const [stage, count] of Object.entries(stageDistribution)) {
+                for (let i = 0; i < count; i++) {
+                    const opponentStage = parseInt(stage);
+                    const availablePokemon = this.pokemonByStage[opponentStage] || this.pokemonByStage[1];
+                    const randomPokemon = availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
+                    
+                    const pokemon = await this.fetchPokemon(randomPokemon);
+                    pokemon.stage = opponentStage;
+                    opponentTeam.push(pokemon);
+                }
             }
             
             // Show opponent preview
@@ -904,6 +912,8 @@ class PokemonGymBattleGame {
             const pokemon = {
                 name: data.name,
                 image: data.sprites.other['official-artwork']?.front_default || data.sprites.front_default,
+                types: data.types.map(type => type.type.name),
+                moves: data.moves.slice(0, 4).map(move => move.move.name.replace('-', ' ')),
                 stats: {
                     hp: data.stats.find(stat => stat.stat.name === 'hp').base_stat,
                     attack: data.stats.find(stat => stat.stat.name === 'attack').base_stat,
